@@ -41,7 +41,8 @@ defmodule Greenhouse.Params.Post do
         categories: categories,
         series: series
       },
-      progress: progress
+      progress: progress,
+      extra: content_meta[:extra] || %{} # Map.reject(content_meta, fn {k, _} -> k in [] end)
     }
   end
 

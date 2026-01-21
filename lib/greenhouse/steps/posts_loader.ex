@@ -20,7 +20,7 @@ defmodule Greenhouse.PostsLoader do
     {:ok,
      Path.wildcard(post_root_path <> "/**/*.md")
      |> Task.async_stream(&parse_single_post(&1, Path.dirname(post_root_path)))
-     |> Enum.map(fn s -> {s.id, s} end)
+     |> Enum.map(fn {:ok, s} -> {s.id, s} end)
      |> Enum.into(%{})
      |> then(&Orchid.Param.new(:posts_map, Map, &1))}
   end

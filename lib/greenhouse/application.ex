@@ -8,8 +8,7 @@ defmodule Greenhouse.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: Greenhouse.Worker.start_link(arg)
-      # {Greenhouse.Worker, arg}
+      {Greenhouse.Storage, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
