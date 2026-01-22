@@ -3,13 +3,12 @@ defmodule Greenhouse.Params.Page do
 
   def from_file_doc(%Greenhouse.Params.FileDoc{
         id: id,
-        # created_at: created_at,
-        # updated_at: updated_at,
         body: body,
-        metadata: _content_meta
+        metadata: content_meta
       }),
       do: %__MODULE__{
         id: id,
         content: body,
+        extra: content_meta[:extra]
       }
 end
