@@ -1,4 +1,4 @@
-defmodule Greenhouse.PostsLoader do
+defmodule Greenhouse.Steps.PostsLoader do
   @moduledoc """
   Load content into orchid's params.
   """
