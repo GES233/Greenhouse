@@ -4,27 +4,76 @@ defmodule Greenhouse.Steps.PostsLoader do
   """
   use Orchid.Step
 
+  @orchid_internal_keys [
+    :__orchid_workflow_ctx__,
+    :__reporter_ctx__
+  ]
+
   def as_declarative(opts \\ []), do: {__MODULE__, :posts_path, :posts_map, opts}
+
+  @opts_schema [
+    ignore_markdown: [
+      type: :boolean,
+      default: true,
+      doc: "Ignore *.markdown files"
+    ],
+    use_git: [
+      type: :boolean,
+      default: false,
+      doc: "Use git commit time as updated date"
+    ],
+    git_repo: [
+      type: :string,
+      required: false,
+      doc: "Path to git repository (optional)"
+    ]
+  ]
 
   @doc """
   ## Options
 
   * `:ignore_markdown` (Boolean) - Ignore `*.markdown`, default as true.
-  * `:use_git`
+  * `:use_git` (Boolean) - If true, return updated date by git commit.
+  * `:git_repo` (Optional(Binary))
   """
-  def validate_options(_step_options) do
-    :ok
+  def validate_options(step_options) do
+    NimbleOptions.validate(Keyword.drop(step_options, @orchid_internal_keys), @opts_schema)
+    |> case do
+      {:ok, _} -> :ok
+      any -> any
+    end
   end
 
-  def run(%Orchid.Param{payload: post_root_path}, _step_options) do
-    git_path = Path.dirname(post_root_path)
+  def run(%Orchid.Param{payload: post_root_path}, step_options) do
+    opts =
+      step_options
+      |> Keyword.drop(@orchid_internal_keys)
+      |> NimbleOptions.validate!(@opts_schema)
+
+    git_path =
+      if opts[:use_git] do
+        opts[:git_repo] || Path.dirname(post_root_path)
+      else
+        nil
+      end
+
+    allow_ext =
+      if opts[:ignore_markdown],
+        do: "md",
+        else: "{md,markdown}"
 
     {:ok,
-     Path.wildcard(post_root_path <> "/**/*.md")
+     find_posts(post_root_path, allow_ext)
      |> Task.async_stream(&parse_single_post(&1, git_path))
      |> Enum.map(fn {:ok, s} -> {s.id, s} end)
      |> Enum.into(%{})
      |> then(&Orchid.Param.new(:posts_map, Map, &1))}
+  end
+
+  defp find_posts(root, exts) do
+    Enum.flat_map(exts, fn ext ->
+      Path.wildcard(Path.join(root, "**/*.#{ext}"))
+    end)
   end
 
   defp parse_single_post(path, root) do

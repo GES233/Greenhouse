@@ -25,7 +25,7 @@ defmodule Greenhouse.MixProject do
       # Orchestration
       {:orchid, "~> 0.5"},
       {:orchid_symbiont, "~> 0.1.2"},
-      # {:orchid_dehydration, git: "https://github.com/SynapticStrings/OrchidDehydration.git"}
+      {:nimble_options, "~> 1.1"},
 
       # Meta parse
       {:yaml_elixir, "~> 2.12"},
