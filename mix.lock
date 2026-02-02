@@ -1,7 +1,7 @@
 %{
   "git_cli": {:hex, :git_cli, "0.3.0", "a5422f9b95c99483385b976f5d43f7e8233283a47cda13533d7c16131cb14df5", [:mix], [], "hexpm", "78cb952f4c86a41f4d3511f1d3ecb28edb268e3a7df278de2faa1bd4672eaf9b"},
   "nimble_options": {:hex, :nimble_options, "1.1.1", "e3a492d54d85fc3fd7c5baf411d9d2852922f66e69476317787a7b2bb000a61b", [:mix], [], "hexpm", "821b2470ca9442c4b6984882fe9bb0389371b8ddec4d45a9504f00a66f650b44"},
-  "orchid": {:hex, :orchid, "0.5.2", "8fb9c6c86e38108bdb91036c04cd239672850f39699ca80b142228e737eced67", [:mix], [{:telemetry, "~> 1.3", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "69c487f608f6c8662e57ada3067bd5be140f5f87c33fcae3438f07038583cf4a"},
+  "orchid": {:hex, :orchid, "0.5.4", "77802e4d0d111b86489c3846a9d057513ee2123cba455d066497d96b3fdf47f0", [:mix], [{:telemetry, "~> 1.3", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "48ce45af44926312bf7f752cb9edf119bf742c30f2f0f21b4443a48ff982c21f"},
   "orchid_symbiont": {:hex, :orchid_symbiont, "0.1.2", "01341d6ff6bdceb2dea6ef99a8e68f36f585e2ffcb15d80061a4bdb0819a4183", [:mix], [{:orchid, "~> 0.5", [hex: :orchid, repo: "hexpm", optional: false]}], "hexpm", "996607d8cdb12b69144228319dd434b1b7e39e2cdf197ab0be04d736540b2819"},
   "telemetry": {:hex, :telemetry, "1.3.0", "fedebbae410d715cf8e7062c96a1ef32ec22e764197f70cda73d82778d61e7a2", [:rebar3], [], "hexpm", "7015fc8919dbe63764f4b4b87a95b7c0996bd539e0d499be6ec9d7f3875b79e6"},
   "yamerl": {:hex, :yamerl, "0.10.0", "4ff81fee2f1f6a46f1700c0d880b24d193ddb74bd14ef42cb0bcf46e81ef2f8e", [:rebar3], [], "hexpm", "346adb2963f1051dc837a2364e4acf6eb7d80097c0f53cbdc3046ec8ec4b4e6e"},

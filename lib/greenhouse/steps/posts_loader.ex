@@ -34,10 +34,6 @@ defmodule Greenhouse.Steps.PostsLoader do
   """
   def validate_options(step_options) do
     NimbleOptions.validate(drop_orchid_native(step_options), @opts_schema)
-    |> case do
-      {:ok, _} -> :ok
-      any -> any
-    end
   end
 
   def run(%Orchid.Param{payload: post_root_path}, step_options) do

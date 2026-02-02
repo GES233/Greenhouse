@@ -13,8 +13,6 @@ defmodule Greenhouse.Steps.MediaLoader do
 
     {
       Orchid.Step.NestedStep, [:pic_path, :dot_path, :pdf_path], :media_map,
-      # There're some bug in private funtion align_output_names/2 in Orchid.Runner.Hooks.Core
-      output_map: %{media_map: :media_map},
       recipe: Orchid.Recipe.new(inner_steps)
     }
   end
