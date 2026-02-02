@@ -39,24 +39,26 @@ defmodule Greenhouse.Params.Media do
               {:ok, real_path()} | {:error, term()}
 
   # No Operate
-  def all_in_one(path, handler) when is_binary(path) do
+  def path_to_media(path, handler) when is_binary(path) do
     {id, router} = handler.route_handler(path)
 
     %__MODULE__{id: id, route_path: router, type: handler, abs_loc: path}
   end
 
-  # With Operate
-  def all_in_one(path, target_root, handler) when is_binary(path) do
-    {id, router} = handler.route_handler(path)
-
+  def operate_media(media = %__MODULE__{}, target_root) do
     dest_path =
-      handler.convert_handler(path, target_root, router)
+      media.type.convert_handler(media.abs_loc, target_root, media.route_path)
       |> case do
         {:ok, dest_path} -> dest_path
         _err -> nil
       end
 
-    %__MODULE__{id: id, route_path: router, type: handler, abs_loc: dest_path}
+    %{media | abs_loc: dest_path}
+  end
+
+  def path_to_media(path, target_root, handler) when is_binary(path) do
+    path_to_media(path, handler)
+    |> operate_media(target_root)
   end
 
   # Allow max 2 nested
