@@ -3,11 +3,7 @@ defmodule Greenhouse.Steps.PostsLoader do
   Load content into orchid's params.
   """
   use Orchid.Step
-
-  @orchid_internal_keys [
-    :__orchid_workflow_ctx__,
-    :__reporter_ctx__
-  ]
+  import Greenhouse.Steps.Helpers
 
   def as_declarative(opts \\ []), do: {__MODULE__, :posts_path, :posts_map, opts}
 
@@ -37,7 +33,7 @@ defmodule Greenhouse.Steps.PostsLoader do
   * `:git_repo` (Optional(Binary))
   """
   def validate_options(step_options) do
-    NimbleOptions.validate(Keyword.drop(step_options, @orchid_internal_keys), @opts_schema)
+    NimbleOptions.validate(drop_orchid_native(step_options), @opts_schema)
     |> case do
       {:ok, _} -> :ok
       any -> any
@@ -47,7 +43,7 @@ defmodule Greenhouse.Steps.PostsLoader do
   def run(%Orchid.Param{payload: post_root_path}, step_options) do
     opts =
       step_options
-      |> Keyword.drop(@orchid_internal_keys)
+      |> drop_orchid_native()
       |> NimbleOptions.validate!(@opts_schema)
 
     git_path =
