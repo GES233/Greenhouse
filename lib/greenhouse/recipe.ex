@@ -3,11 +3,7 @@ defmodule Greenhouse.Recipe do
   alias Orchid.Recipe, as: R
 
   def init_building() do
-    recipe = R.new([
-      S.PostsLoader.as_declarative(),
-      S.PagesLoader.as_declarative(),
-      S.MediaLoader.as_declarative()
-    ])
+    recipe = build()
 
     {:error, {:missing_inputs, init_keys_required}} = R.validate_steps(recipe.steps, [])
 
@@ -16,6 +12,17 @@ defmodule Greenhouse.Recipe do
       # will add in 0.5.3
       %{recipe | name: :init},
       init_keys_required |> Enum.map(fn {_, v} -> v end) |> List.flatten()
+    }
+  end
+
+  def build() do
+    %{
+      R.new([
+        S.PostsLoader.as_declarative(),
+        # S.PagesLoader.as_declarative(),
+        S.MediaLoader.as_declarative()
+      ])
+      | name: :build
     }
   end
 end

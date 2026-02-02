@@ -55,8 +55,8 @@ defmodule Greenhouse.Steps.PostsLoader do
 
     allow_ext =
       if opts[:ignore_markdown],
-        do: "md",
-        else: "{md,markdown}"
+        do: ["md"],
+        else: ~w(md markdown)
 
     {:ok,
      find_posts(post_root_path, allow_ext)
