@@ -7,6 +7,13 @@ defmodule Greenhouse.Application do
 
   @impl true
   def start(_type, _args) do
+    :telemetry.attach(
+      "orchid-error-logger",
+      [:orchid, :step, :exception],
+      &Orchid.TelemetryReporter.handler/4,
+      nil
+    )
+
     children = [
       {Greenhouse.Storage, []}
     ]
