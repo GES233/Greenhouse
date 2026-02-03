@@ -71,6 +71,6 @@ defmodule Greenhouse.Steps.PostsLoader do
   defp parse_single_post(path, root) do
     path
     |> Greenhouse.Params.FileDoc.from_path()
-    |> Greenhouse.Params.Post.from_file_doc(root)
+    |> Greenhouse.Params.Post.from_file_doc(root, Path.extname(path))
   end
 end

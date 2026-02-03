@@ -17,7 +17,7 @@ defmodule Greenhouse.Params.Post do
         updated_at: updated_at,
         body: body,
         metadata: content_meta
-      }, repo_path \\ nil) do
+      }, repo_path \\ nil, ext \\ "md") do
     title = content_meta[:title]
     categories = content_meta[:categories]
     tags = content_meta[:tags] |> :lists.flatten()
@@ -25,7 +25,7 @@ defmodule Greenhouse.Params.Post do
     progress = content_meta[:progress] || :final
 
     updated_date = if !is_nil(repo_path) do
-      overwrite_update(id, updated_at, repo_path)
+      overwrite_update(id, updated_at, repo_path, ext)
     else
       updated_at |> convert_date()
     end
@@ -52,7 +52,7 @@ defmodule Greenhouse.Params.Post do
     convert_date(maybe_create_from_file)
   end
 
-  defp overwrite_update(id, file_update, repo_path, ext \\ "md") do
+  defp overwrite_update(id, file_update, repo_path, ext) do
       Git.execute_command(
         %Git.Repository{path: repo_path},
         "log",
