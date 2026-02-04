@@ -3,14 +3,6 @@ defmodule Greenhouse.Params.Media do
   媒体资源本体优先。
 
   先得有这么个本体，才能够被注册，正文有对应的样式才可能被替换。
-
-  ### Examples
-
-      Greenhouse.Params.Media.all_in_one(
-        "D:/Blog/source/img/snippet/zhihu-answer-3062464204.png",
-        "D:/CodeRepo/ElixirPlayground/greenhouse",
-        Greenhouse.Params.Media.Picture
-      )
   """
   @type t :: %__MODULE__{
           id: binary() | atom(),
@@ -48,18 +40,30 @@ defmodule Greenhouse.Params.Media do
       id: id,
       route_path: router,
       type: handler,
-      abs_loc: path,
+      abs_loc: path
     }
   end
 
   def operate_media(media = %__MODULE__{}, target_root) do
     media.type.convert_handler(media.abs_loc, target_root, media.route_path)
-      |> case do
-        {:ok, dest_path} -> %{media | abs_loc: dest_path, content_replaced: "![](#{media.route_path})"}
-        {:error, {:replace, replaced_content}} -> %{media | content_replaced: replaced_content}
-      end
+    |> case do
+      {:ok, dest_path} ->
+        %{media | abs_loc: dest_path, content_replaced: "![](#{media.route_path})"}
+
+      {:error, {:replace, replaced_content}} ->
+        %{media | content_replaced: replaced_content}
+    end
   end
 
+  @doc """
+    ### Examples
+
+      Greenhouse.Params.Media.path_to_media(
+        "D:/Blog/source/img/snippet/zhihu-answer-3062464204.png",
+        "D:/CodeRepo/ElixirPlayground/greenhouse",
+        Greenhouse.Params.Media.Picture
+      )
+  """
   def path_to_media(path, target_root, handler) when is_binary(path) do
     path_to_media(path, handler)
     |> operate_media(target_root)
@@ -102,7 +106,6 @@ defmodule Greenhouse.Params.Media.Picture do
       err -> err
     end
   end
-
 end
 
 defmodule Greenhouse.Params.Media.PDF do
@@ -163,7 +166,9 @@ defmodule Greenhouse.Params.Media.Graphviz do
     dest_path = Path.join(target_root_path, router)
 
     case Runner.execute(source_path) do
-      {:ok, svg} -> save_svg(svg, dest_path)
+      {:ok, svg} ->
+        save_svg(svg, dest_path)
+
       {:error, {code, reason}} ->
         Logger.warning("DOT #{source_path} build failed with code #{code} and reason #{reason}")
 

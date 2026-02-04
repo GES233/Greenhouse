@@ -1,5 +1,11 @@
 defmodule Greenhouse.Params.Page do
-  defstruct [:id, :title, :content, :doc_struct, :extra]
+  defstruct [:id, :title, :route, :content, :doc_struct, :extra]
+
+  def from_file_doc(file_doc, route) do
+    raw = from_file_doc(file_doc)
+
+    %{raw | route: route}
+  end
 
   def from_file_doc(%Greenhouse.Params.FileDoc{
         id: id,

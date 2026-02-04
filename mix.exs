@@ -29,7 +29,7 @@ defmodule Greenhouse.MixProject do
 
       # Meta parse
       {:yaml_elixir, "~> 2.12"},
-      {:git_cli, "~> 0.3.0"},
+      {:git_cli, "~> 0.3.0"}
     ]
   end
 end

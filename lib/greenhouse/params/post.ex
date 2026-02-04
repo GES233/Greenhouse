@@ -11,24 +11,29 @@ defmodule Greenhouse.Params.Post do
     extra: %{}
   ]
 
-  def from_file_doc(%Greenhouse.Params.FileDoc{
-        id: id,
-        created_at: created_at,
-        updated_at: updated_at,
-        body: body,
-        metadata: content_meta
-      }, repo_path \\ nil, ext \\ "md") do
+  def from_file_doc(
+        %Greenhouse.Params.FileDoc{
+          id: id,
+          created_at: created_at,
+          updated_at: updated_at,
+          body: body,
+          metadata: content_meta
+        },
+        repo_path \\ nil,
+        ext \\ "md"
+      ) do
     title = content_meta[:title]
     categories = content_meta[:categories]
     tags = content_meta[:tags] |> :lists.flatten()
     series = content_meta[:series]
     progress = content_meta[:progress] || :final
 
-    updated_date = if !is_nil(repo_path) do
-      overwrite_update(id, updated_at, repo_path, ext)
-    else
-      updated_at |> convert_date()
-    end
+    updated_date =
+      if !is_nil(repo_path) do
+        overwrite_update(id, updated_at, repo_path, ext)
+      else
+        updated_at |> convert_date()
+      end
 
     %__MODULE__{
       id: id,
@@ -42,7 +47,8 @@ defmodule Greenhouse.Params.Post do
         series: series
       },
       progress: progress,
-      extra: content_meta[:extra] || %{} # Map.reject(content_meta, fn {k, _} -> k in [] end)
+      # Map.reject(content_meta, fn {k, _} -> k in [] end)
+      extra: content_meta[:extra] || %{}
     }
   end
 
@@ -53,24 +59,25 @@ defmodule Greenhouse.Params.Post do
   end
 
   defp overwrite_update(id, file_update, repo_path, ext) do
-      Git.execute_command(
-        %Git.Repository{path: repo_path},
-        "log",
-        ~w(--pretty=format:\"%cd\" --date=iso-strict -1 _posts/#{id}.#{ext}),
-        fn date_string ->
-          date_string
-          |> String.replace(~r("), "")
-          |> DateTime.from_iso8601()
-          |> case do
-            # Uncommit file.
-            {:ok, commit_time, _} -> {:ok, commit_time}
-            _ -> {:ok, DateTime.now!("Asia/Shanghai")}
-          end
+    Git.execute_command(
+      %Git.Repository{path: repo_path},
+      "log",
+      ~w(--pretty=format:\"%cd\" --date=iso-strict -1 _posts/#{id}.#{ext}),
+      fn date_string ->
+        date_string
+        |> String.replace(~r("), "")
+        |> DateTime.from_iso8601()
+        |> case do
+          # Uncommit file.
+          {:ok, commit_time, _} -> {:ok, commit_time}
+          _ -> {:ok, DateTime.now!("Asia/Shanghai")}
         end
-      ) |> case do
-        {:ok, datetime} -> convert_date(datetime)
-        {:error, _} -> convert_date(file_update)
       end
+    )
+    |> case do
+      {:ok, datetime} -> convert_date(datetime)
+      {:error, _} -> convert_date(file_update)
+    end
   end
 
   defp convert_date(%DateTime{} = datetime), do: datetime

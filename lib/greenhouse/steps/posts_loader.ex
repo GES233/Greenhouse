@@ -59,7 +59,7 @@ defmodule Greenhouse.Steps.PostsLoader do
      |> Task.async_stream(&parse_single_post(&1, git_path))
      |> Enum.map(fn {:ok, s} -> {s.id, s} end)
      |> Enum.into(%{})
-     |> then(&Orchid.Param.new(:posts_map, Map, &1))}
+     |> then(&Orchid.Param.new(:posts_map, :map, &1))}
   end
 
   defp find_posts(root, exts) do

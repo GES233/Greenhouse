@@ -97,11 +97,14 @@ defmodule Orchid.RunnerHooks.ParamsDehydration do
   # Adapt Nx
   defp should_dehydrate?(%{shape: shape, type: {_type, bits_per_element}}, threshold)
        when is_tuple(shape) and is_number(bits_per_element),
-       do: (Tuple.product(shape) * (bits_per_element / 8)) > threshold
+       do: Tuple.product(shape) * (bits_per_element / 8) > threshold
 
   defp should_dehydrate?(data, threshold) when is_binary(data), do: byte_size(data) > threshold
   defp should_dehydrate?(data, threshold) when is_list(data), do: length(data) > div(threshold, 8)
-  defp should_dehydrate?(data, threshold) when is_map(data), do: map_size(data) > div(threshold, 16)
+
+  defp should_dehydrate?(data, threshold) when is_map(data),
+    do: map_size(data) > div(threshold, 16)
+
   defp should_dehydrate?(data, threshold), do: :erlang.external_size(data) >= 2 * threshold
 
   # defp should_dehydrate?(_data, _threshold), do: false

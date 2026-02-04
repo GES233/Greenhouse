@@ -19,7 +19,7 @@ defmodule Greenhouse.Recipe do
     %{
       R.new([
         S.PostsLoader.as_declarative(),
-        # S.PagesLoader.as_declarative(),
+        S.PagesLoader.as_declarative(),
         S.MediaLoader.as_declarative()
       ])
       | name: :build

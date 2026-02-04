@@ -2,17 +2,18 @@ defmodule Greenhouse.Steps.MediaLoader do
   alias Greenhouse.Steps.MediaLoader.InnerRecipe, as: S
 
   def as_declarative(generated_root_target \\ nil) do
-
     inner_steps = [
       {&S.load_images/2, :pic_path, :pic_map, generated_root_target: generated_root_target},
       {&S.load_pdfs/2, :pdf_path, :pdf_map, generated_root_target: generated_root_target},
       {&S.load_dots/2, :dot_path, :svg_map, generated_root_target: generated_root_target},
       # TODO: Add Lilyond(optional)
-      {&S.merger/2, [:pic_map, :svg_map, :pdf_map], :media_map},
+      {&S.merger/2, [:pic_map, :svg_map, :pdf_map], :media_map}
     ]
 
     {
-      Orchid.Step.NestedStep, [:pic_path, :dot_path, :pdf_path], :media_map,
+      Orchid.Step.NestedStep,
+      [:pic_path, :dot_path, :pdf_path],
+      :media_map,
       recipe: Orchid.Recipe.new(inner_steps)
     }
   end
@@ -110,7 +111,7 @@ defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
 
   def merger(media_map, _opts) do
     media_map
-    |> Enum.map(&(&1.payload))
+    |> Enum.map(& &1.payload)
     |> List.flatten()
     |> Enum.into(%{})
     |> then(&Orchid.Param.new(:media_map, :map, &1))
