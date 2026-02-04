@@ -1,17 +1,28 @@
 defmodule Greenhouse.Steps.ContentReplacer do
+  require Orchid.ParamFactory
   use Orchid.Step
   alias Greenhouse.Params.Link
 
   @replaced_pattern ~r/:\{(\S+)\}/
 
-  def run([posts_map, pages_map, media_map], _step_options) do
-    replace_posts(
-      Orchid.Param.get_payload(posts_map),
-      Orchid.Param.get_payload(pages_map),
-      Orchid.Param.get_payload(media_map)
-    )
+  def as_declarative(opts \\ []),
+    do:
+      {__MODULE__, [:posts_map, :pages_map, :media_map],
+       [:replaced_posts_map, :replaced_pages_map], opts}
 
-    {:ok, Orchid.Param.new(:for, :name)}
+  def run([posts_map, pages_map, media_map], _step_options) do
+    {updated_posts_map, updated_pages_map} =
+      replace_posts(
+        Orchid.Param.get_payload(posts_map),
+        Orchid.Param.get_payload(pages_map),
+        Orchid.Param.get_payload(media_map)
+      )
+
+    {:ok,
+     [
+       Orchid.ParamFactory.to_param(updated_posts_map, :map),
+       Orchid.ParamFactory.to_param(updated_pages_map, :map)
+     ]}
   end
 
   def replace_posts(posts_map, pages_map, media_map) do
@@ -31,7 +42,12 @@ defmodule Greenhouse.Steps.ContentReplacer do
         Regex.run(@replaced_pattern, cought)
         |> Enum.at(1)
 
-      Link.convert(maybe_resource_map[k])
+      result = Link.convert(maybe_resource_map[k])
+
+      case result do
+        nil -> cought
+        result when is_binary(result) -> result
+      end
     end
 
     {key,

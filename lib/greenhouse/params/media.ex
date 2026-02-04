@@ -115,10 +115,10 @@ defmodule Greenhouse.Params.Media.PDF do
   def route_handler(path) do
     case Greenhouse.Params.Media.maybe_series(path, "pdf") do
       {id, {series, id_under_seires, ext}} ->
-        {id, "/archive/pdf/#{series}/#{id_under_seires}.#{ext}"}
+        {id, "archive/pdf/#{series}/#{id_under_seires}.#{ext}"}
 
       {id, {id_under_seires, ext}} ->
-        {id, "/archive/pdf/#{id_under_seires}.#{ext}"}
+        {id, "archive/pdf/#{id_under_seires}.#{ext}"}
     end
   end
 
@@ -157,8 +157,8 @@ defmodule Greenhouse.Params.Media.Graphviz do
 
   def route_handler(location) do
     case Greenhouse.Params.Media.maybe_series(location, "src") do
-      {id, {series, id_under_seires, _ext}} -> {id, "/svg/#{series}/#{id_under_seires}.svg"}
-      {id, {id_under_seires, _ext}} -> {id, "/svg/#{id_under_seires}.svg"}
+      {id, {series, id_under_seires, _ext}} -> {id, "svg/#{series}/#{id_under_seires}.svg"}
+      {id, {id_under_seires, _ext}} -> {id, "svg/#{id_under_seires}.svg"}
     end
   end
 
