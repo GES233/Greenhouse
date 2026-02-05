@@ -1,5 +1,5 @@
 defmodule Greenhouse.Steps.LayoutBuilder do
-  aliases Greenhouse.Params.{Post, Page, Link}
+  alias Greenhouse.Params.{Post, Page, Link}
   use Orchid.Step
 
   def as_declarative(_opts \\ []), do: [
