@@ -13,7 +13,7 @@ defmodule Greenhouse.Steps.LayoutBuilder do
      Orchid.Param.get_payload(map_with_doc_struct)
      |> Task.async_stream(&add_layout/1)
      |> Enum.map(fn {:ok, r} -> r end)
-     |> then(&Orchid.Param.new(:any, :router_content_pair， &1))}
+     |> then(&Orchid.Param.new(:any, :router_content_pair, &1))}
   end
 
   def add_layout(%Post{} = post) do
