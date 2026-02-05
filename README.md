@@ -9,7 +9,7 @@ flowchart TD
   Inputs
   PL["PostsLoader"]
   ML["MediaLoader"]
-  BE["BibliographyExtractor"]
+  BE["HTMLConvertorWithBibliography"]
   MR["MediaReplace"]
   iTB["TaxonomyBuilder"]
   APL["AddPostsLayout"]

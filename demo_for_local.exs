@@ -5,6 +5,7 @@ posts_path = Path.join(root_path, "_posts")
 pic_path = Path.join(root_path, "img")
 pdf_path = Path.join(root_path, "pdf")
 dot_path = Path.join(root_path, "src")
+bib_entry = Path.join(root_path, "_bibs")
 
 import Orchid.ParamFactory
 
@@ -14,5 +15,6 @@ Orchid.run(Greenhouse.Recipe.build(), [
   to_param(posts_path, :path),
   to_param(pic_path, :path),
   to_param(pdf_path, :path),
-  to_param(dot_path, :path)
+  to_param(dot_path, :path),
+  to_param(bib_entry, :path)
 ])

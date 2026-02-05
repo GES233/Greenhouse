@@ -15,6 +15,6 @@ defmodule Greenhouse.Params.Page do
       do: %__MODULE__{
         id: id,
         content: body,
-        extra: content_meta[:extra]
+        extra: content_meta[:extra] || %{}
       }
 end

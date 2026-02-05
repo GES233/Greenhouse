@@ -2,6 +2,7 @@ defmodule Pandox do
   @moduledoc """
   Documentation for `Pandox`.
   """
+  require Logger
 
   # 默认的 pandoc 可执行文件的地址
   # （我假定你是通过 Scoop/apt/Homebrew 等方式安装的）
@@ -29,7 +30,7 @@ defmodule Pandox do
     --citeproc
   )
 
-  def render_markdown_to_html(content, metadata_to_pandoc) do
+  def render_markdown_to_html(content, metadata_to_pandoc, _opts \\ []) do
     # 生成临时文件
     input_file = Path.join(System.tmp_dir!(), "input_#{System.unique_integer()}.md")
     output_file = Path.join(System.tmp_dir!(), "output_#{System.unique_integer()}.html")
@@ -70,45 +71,44 @@ defmodule Pandox do
           #{Path.absname("priv/template/structural.html")}
         )
 
-    @pandoc_flags ++ @pandoc_crossref_flags ++ lua_filter ++ parse_flag ++ [yaml, csl, input, "-o", output]
+    @pandoc_flags ++
+      @pandoc_crossref_flags ++ lua_filter ++ parse_flag ++ [yaml, csl, input, "-o", output]
   end
 
-  defp build_front_matter(metadata) do
-    if Map.keys(metadata) == [] do
-      ""
-    else
-      res =
-        metadata
-        |> Enum.map(fn {k, v} -> "#{k}: #{v}" end)
-        |> Enum.join("\n")
+  defp build_front_matter(metadata) when map_size(metadata) < 1, do: ""
 
-      """
-      ---
-      #{res}
-      ---
-      """
-    end
+  defp build_front_matter(metadata) do
+    res =
+      metadata
+      |> Enum.map(fn {k, v} -> "#{k}: #{v}" end)
+      |> Enum.join("\n")
+
+    """
+    ---
+    #{res}
+    ---
+    """
   end
 
   defp handle_result({_, 0}, output_file) do
-    File.read!(output_file) |> parse_pandoc_output()
+    parse_pandoc_output(File.read!(output_file))
   end
 
-  defp handle_result({code, msg}, _) do
-    raise "Pandoc failed with code #{code}: #{msg}"
+  defp handle_result({msg, code}, _) do
+    Logger.error "Pandoc failed with code #{code}: #{msg}"
   end
 
   ## == Postlude ==
 
   defmodule Doc do
     @type t :: %__MODULE__{
-      body: binary(),
-      toc: binary() | nil,
-      summary: binary() | nil,
-      bibliography: binary() | nil,
-      footnotes: binary() | nil,
-      meta: term()
-    }
+            body: binary(),
+            toc: binary() | nil,
+            summary: binary() | nil,
+            bibliography: binary() | nil,
+            footnotes: binary() | nil,
+            meta: term()
+          }
     defstruct [:body, :toc, :summary, :bibliography, :footnotes, :meta]
   end
 
@@ -117,6 +117,7 @@ defmodule Pandox do
     # 这里写一个通用的提取器
     extract = fn section_name ->
       regex = ~r/<!--SECTION_START:#{section_name}-->(.*?)<!--SECTION_END:#{section_name}-->/s
+
       case Regex.run(regex, raw_output) do
         [_, content] -> String.trim(content)
         nil -> nil
@@ -130,7 +131,8 @@ defmodule Pandox do
       bibliography: extract.("BIB"),
       footnotes: extract.("NOTES"),
       # 如果你需要回传元数据，甚至可以让 Pandoc 输出 JSON
-      meta: extract.("META") # 或者从 Pandoc 输出中解析
+      # 或者从 Pandoc 输出中解析
+      meta: extract.("META")
     }
   end
 end

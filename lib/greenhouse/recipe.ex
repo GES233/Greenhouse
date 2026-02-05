@@ -21,7 +21,9 @@ defmodule Greenhouse.Recipe do
         S.PostsLoader.as_declarative(),
         S.PagesLoader.as_declarative(),
         S.MediaLoader.as_declarative(),
-        S.ContentReplacer.as_declarative()
+        S.ContentReplacer.as_declarative(),
+        S.HTMLConvertorWithBibliography.process_pages_as_declarative(),
+        S.HTMLConvertorWithBibliography.process_posts_as_declarative()
       ])
       | name: :build
     }
