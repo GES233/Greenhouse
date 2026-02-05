@@ -6,6 +6,7 @@ defmodule Greenhouse.MixProject do
       app: :greenhouse,
       version: "0.1.0",
       elixir: "~> 1.18",
+      # config_path: "config.exs",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -29,6 +30,12 @@ defmodule Greenhouse.MixProject do
 
       # Meta parse
       {:yaml_elixir, "~> 2.12"},
+
+      # Layout
+      {:phoenix_html, "~> 4.3"},
+      {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
+
+      # Git
       {:git_cli, "~> 0.3.0"}
     ]
   end

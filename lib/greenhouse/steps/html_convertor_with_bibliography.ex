@@ -2,18 +2,18 @@ defmodule Greenhouse.Steps.HTMLConvertorWithBibliography do
   require Logger
   use Orchid.Step
 
-  def process_posts_as_declarative(_opts \\ []),
-    do: {__MODULE__, [:replaced_posts_map, :bib_entry], :posts_map_with_doc_struct}
-
-  def process_pages_as_declarative(_opts \\ []),
-    do: {__MODULE__, [:replaced_pages_map, :bib_entry], :pages_map_with_doc_struct}
+  def as_declarative(_opts \\ []),
+    do: [
+      {__MODULE__, [:replaced_posts_map, :bib_entry], :posts_map_with_doc_struct},
+      {__MODULE__, [:replaced_pages_map, :bib_entry], :pages_map_with_doc_struct}
+    ]
 
   def run([posts_map_or_pages_map, bib_entry], _step_options) do
     bib_entry_path = Orchid.Param.get_payload(bib_entry)
 
     posts_map_or_pages_map
     |> Orchid.Param.get_payload()
-    |> Task.async_stream(fn {_id, p} -> convert_to_markdown(p, bib_entry_path)end)
+    |> Task.async_stream(fn {_id, p} -> convert_to_markdown(p, bib_entry_path) end)
     |> Enum.reduce_while([], fn {state, payload}, acc ->
       case state do
         :ok -> {:cont, [payload | acc]}
