@@ -1,19 +1,20 @@
 defmodule Greenhouse.Params.Post do
   @type t :: %__MODULE__{
-    id: binary(),
-    title: binary(),
-    created_at: DateTime.t() | Date.t(),
-    updated_at: DateTime.t() | Date.t(),
-    index_view: %{
-      tags: [binary()],
-      series: binary() | nil,
-      categories: any()
-    },
-    content: binary(),
-    doc_struct: struct(),
-    progress: :final, # | [:wip, non_neg_integer()] | [:block, non_neg_integer()],
-    extra: %{}
-  }
+          id: binary(),
+          title: binary(),
+          created_at: DateTime.t() | Date.t(),
+          updated_at: DateTime.t() | Date.t(),
+          index_view: %{
+            tags: [binary()],
+            series: binary() | nil,
+            categories: any()
+          },
+          content: binary(),
+          doc_struct: struct(),
+          # | [:wip, non_neg_integer()] | [:block, non_neg_integer()],
+          progress: :final,
+          extra: %{}
+        }
   defstruct [
     :id,
     :title,

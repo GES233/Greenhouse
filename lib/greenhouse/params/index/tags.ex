@@ -35,6 +35,7 @@ defmodule Greenhouse.Params.Index.Tags do
     |> Enum.group_by(fn {tag, _id} -> tag end, fn {_tag, id} -> id end)
     |> Map.new()
   end
+
   # def get_tags_posts_mapper(id_tag_pair) do
   #   for {id, tags} <- id_tag_pair,
   #       tag <- tags,

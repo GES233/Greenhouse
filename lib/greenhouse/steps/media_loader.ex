@@ -1,6 +1,7 @@
 defmodule Greenhouse.Steps.MediaLoader do
   alias Greenhouse.Steps.MediaLoader.InnerRecipe, as: S
 
+  @spec as_declarative(generated_root_target :: Path.t() | nil) :: Orchid.Step.t()
   def as_declarative(generated_root_target \\ nil) do
     inner_steps = [
       {&S.load_images/2, :pic_path, :pic_map, generated_root_target: generated_root_target},

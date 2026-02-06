@@ -1,4 +1,5 @@
 defmodule Greenhouse.Steps.PagesLoader do
+  @spec as_declarative(keyword()) :: Orchid.Step.t()
   def as_declarative(opts \\ []), do: {__MODULE__, :page_root_path, :pages_map, opts}
 
   use Orchid.Step
@@ -17,7 +18,7 @@ defmodule Greenhouse.Steps.PagesLoader do
       type: :string,
       default: "about.md",
       doc: ""
-    ],
+    ]
     # friends_location: [
     #   type: :string,
     #   default: "friends.md",

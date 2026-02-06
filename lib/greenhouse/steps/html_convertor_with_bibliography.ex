@@ -2,6 +2,7 @@ defmodule Greenhouse.Steps.HTMLConvertorWithBibliography do
   require Logger
   use Orchid.Step
 
+  @spec as_declarative(keyword()) :: [Orchid.Step.t()]
   def as_declarative(_opts \\ []),
     do: [
       {__MODULE__, [:replaced_posts_map, :bib_entry], :posts_map_with_doc_struct},

@@ -2,11 +2,13 @@ defmodule Greenhouse.Steps.LayoutBuilder do
   alias Greenhouse.Params.{Post, Page, Link}
   use Orchid.Step
 
-  def as_declarative(_opts \\ []), do: [
-    # Seperate layout and write process.
-    {__MODULE__, :posts_map_with_doc_struct, :post_router_content_pair},
-    {__MODULE__, :pages_map_with_doc_struct, :page_router_content_pair},
-  ]
+  @spec as_declarative(keyword()) :: [Orchid.Step.t()]
+  def as_declarative(_opts \\ []),
+    do: [
+      # Seperate layout and write process.
+      {__MODULE__, :posts_map_with_doc_struct, :post_router_content_pair},
+      {__MODULE__, :pages_map_with_doc_struct, :page_router_content_pair}
+    ]
 
   def run(map_with_doc_struct, _step_options) do
     {:ok,

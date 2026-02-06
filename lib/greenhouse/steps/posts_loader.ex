@@ -5,6 +5,7 @@ defmodule Greenhouse.Steps.PostsLoader do
   use Orchid.Step
   import Greenhouse.Steps.Helpers
 
+  @spec as_declarative(keyword()) :: Orchid.Step.t()
   def as_declarative(opts \\ []), do: {__MODULE__, :posts_path, :posts_map, opts}
 
   @opts_schema [

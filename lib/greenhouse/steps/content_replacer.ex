@@ -5,6 +5,7 @@ defmodule Greenhouse.Steps.ContentReplacer do
 
   @replaced_pattern ~r/:\{(\S+)\}/
 
+  @spec as_declarative(keyword()) :: Orchid.Step.t()
   def as_declarative(opts \\ []),
     do:
       {__MODULE__, [:posts_map, :pages_map, :media_map],

@@ -17,9 +17,12 @@ defmodule Orchid.ParamFactory do
     # 2. 生成调用 Orchid.Param.new 的代码
     quote do
       Orchid.Param.new(
-        unquote(var_name),  # 这里注入提取出来的原子，例如 :root_path
-        unquote(type),      # 这里注入类型
-        unquote(var_ast),   # 这里注入变量本身的值
+        # 这里注入提取出来的原子，例如 :root_path
+        unquote(var_name),
+        # 这里注入类型
+        unquote(type),
+        # 这里注入变量本身的值
+        unquote(var_ast),
         unquote(metadata)
       )
     end
