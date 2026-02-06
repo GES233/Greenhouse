@@ -155,6 +155,7 @@ defmodule Greenhouse.Params.Media.Graphviz do
     defp handle_result({err, code}), do: {:error, {code, err}}
   end
 
+  @impl true
   def route_handler(location) do
     case Greenhouse.Params.Media.maybe_series(location, "src") do
       {id, {series, id_under_seires, _ext}} -> {id, "svg/#{series}/#{id_under_seires}.svg"}
@@ -162,6 +163,7 @@ defmodule Greenhouse.Params.Media.Graphviz do
     end
   end
 
+  @impl true
   def convert_handler(source_path, target_root_path, router) do
     dest_path = Path.join(target_root_path, router)
 
@@ -187,4 +189,9 @@ defmodule Greenhouse.Params.Media.Graphviz do
       err -> err
     end
   end
+end
+
+defmodule Greenhouse.Params.Media.Lilypond do
+  # @behaviour Greenhouse.Params.Media
+  require Logger
 end

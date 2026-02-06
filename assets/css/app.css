@@ -1,0 +1,15 @@
+@import "tailwindcss" source(none);
+
+@source "../css";
+@source "../js";
+@source "../../lib/gewwnhouse";
+@source "../../priv/layout";
+
+@plugin "@tailwindcss/typography";
+
+/**
+ * TODO:
+ *
+ * * 配置 typography （包括响应式）
+ * * 实现明暗主题
+***/

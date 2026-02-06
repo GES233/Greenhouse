@@ -1,0 +1,20 @@
+<% # Tailwind %>
+<% # SSE Client Scripts %>
+<%= if @options do %>
+  <%= if Map.get(@options, "math") do %>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <% end %>
+  <%= if Map.get(@options, "calendar") do %>
+    <!-- https://fullcalendar.io/docs/initialize-browser-esm -->
+    <script type='importmap'>
+      {
+        "imports": {
+          "@fullcalendar/core": "https://cdn.skypack.dev/@fullcalendar/core@6.1.20",
+          "@fullcalendar/daygrid": "https://cdn.skypack.dev/@fullcalendar/daygrid@6.1.20"
+        }
+      }
+    </script>
+    <script type='module' src='/assets/calendar.js'></script>
+  <% end %>
+<% end %>
+<%= @maybe_extra %>
