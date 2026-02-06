@@ -91,11 +91,13 @@ defmodule Pandox do
   end
 
   defp handle_result({_, 0}, output_file) do
-    parse_pandoc_output(File.read!(output_file))
+    output_file |> File.read!() |> String.replace("\r\n", "\n") |> parse_pandoc_output()
   end
 
   defp handle_result({msg, code}, _) do
-    Logger.error "Pandoc failed with code #{code}: #{msg}"
+    Logger.error("Pandoc failed with code #{code}: #{msg}")
+
+    :error
   end
 
   ## == Postlude ==
@@ -130,8 +132,7 @@ defmodule Pandox do
       summary: extract.("SUMMARY"),
       bibliography: extract.("BIB"),
       footnotes: extract.("NOTES"),
-      # 如果你需要回传元数据，甚至可以让 Pandoc 输出 JSON
-      # 或者从 Pandoc 输出中解析
+      # TODO: add Jason to parse json part
       meta: extract.("META")
     }
   end

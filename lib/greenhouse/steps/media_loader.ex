@@ -29,9 +29,34 @@ defmodule Greenhouse.Steps.MediaLoader do
   end
 end
 
-defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
+defmodule Greenhouse.Steps.MediaLoader.InnerMacro do
   alias Greenhouse.Params.Media
   alias Greenhouse.Steps.MediaLoader
+
+  defmacro def_media_loader(func_name, extensions, media_type, out_key) do
+    quote do
+      def unquote(func_name)(%Orchid.Param{payload: root_path}, opts) do
+        media_operator =
+          Keyword.get(opts, :generated_root_target, nil)
+          |> case do
+            nil -> &Media.path_to_media(&1, unquote(media_type))
+            path when is_binary(path) -> &Media.path_to_media(&1, unquote(media_type))
+          end
+
+        root_path
+        |> MediaLoader.wildcard(unquote(extensions))
+        |> Task.async_stream(media_operator)
+        |> Enum.map(fn {:ok, media} -> {media.id, media} end)
+        |> then(&Orchid.Param.new(unquote(out_key), :map, &1))
+        |> then(&{:ok, &1})
+      end
+    end
+  end
+end
+
+defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
+  alias Greenhouse.Params.Media
+  import Greenhouse.Steps.MediaLoader.InnerMacro
 
   @doc """
   ### Examples
@@ -47,21 +72,7 @@ defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
         ]
       )
   """
-  def load_images(%Orchid.Param{payload: img_root}, opts) do
-    media_operator =
-      Keyword.get(opts, :generated_root_target, nil)
-      |> case do
-        nil -> &Media.path_to_media(&1, Media.Picture)
-        path when is_binary(path) -> &Media.path_to_media(&1, path, Media.Picture)
-      end
-
-    img_root
-    |> MediaLoader.wildcard(~w(png jpg jpeg gif))
-    |> Task.async_stream(media_operator)
-    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
-    |> then(&Orchid.Param.new(:image_maps, :map, &1))
-    |> then(&{:ok, &1})
-  end
+  def_media_loader(:load_images, ~w(png jpg jpeg gif), Media.Picture, :image_maps)
 
   @doc """
   ### Examples
@@ -77,37 +88,9 @@ defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
         ]
       )
   """
-  def load_pdfs(%Orchid.Param{payload: pdf_root}, opts) do
-    media_operator =
-      Keyword.get(opts, :generated_root_target, nil)
-      |> case do
-        nil -> &Media.path_to_media(&1, Media.PDF)
-        path when is_binary(path) -> &Media.path_to_media(&1, path, Media.PDF)
-      end
+  def_media_loader(:load_pdfs, ~w(pdf), Media.PDF, :pdf_maps)
 
-    pdf_root
-    |> MediaLoader.wildcard(~w(pdf))
-    |> Task.async_stream(media_operator)
-    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
-    |> then(&Orchid.Param.new(:pdf_maps, :map, &1))
-    |> then(&{:ok, &1})
-  end
-
-  def load_dots(%Orchid.Param{payload: dot_root}, opts) do
-    media_operator =
-      Keyword.get(opts, :generated_root_target, nil)
-      |> case do
-        nil -> &Media.path_to_media(&1, Media.Graphviz)
-        path when is_binary(path) -> &Media.path_to_media(&1, path, Media.Graphviz)
-      end
-
-    dot_root
-    |> MediaLoader.wildcard(~w(dot))
-    |> Task.async_stream(media_operator)
-    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
-    |> then(&Orchid.Param.new(:dot_maps, :map, &1))
-    |> then(&{:ok, &1})
-  end
+  def_media_loader(:load_dots, ~w(dot), Media.Graphviz, :dot_maps)
 
   def merger(media_map, _opts) do
     media_map

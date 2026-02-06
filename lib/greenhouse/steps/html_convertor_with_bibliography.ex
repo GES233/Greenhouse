@@ -13,7 +13,12 @@ defmodule Greenhouse.Steps.HTMLConvertorWithBibliography do
 
     posts_map_or_pages_map
     |> Orchid.Param.get_payload()
-    |> Task.async_stream(fn {_id, p} -> convert_to_markdown(p, bib_entry_path) end)
+    |> Task.async_stream(
+      fn {_id, p} -> convert_to_markdown(p, bib_entry_path) end,
+      # TODO: Add option
+      max_concurrency: System.schedulers_online(),
+      timeout: :infinity
+    )
     |> Enum.reduce_while([], fn {state, payload}, acc ->
       case state do
         :ok -> {:cont, [payload | acc]}

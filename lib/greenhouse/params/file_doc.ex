@@ -58,6 +58,7 @@ defmodule Greenhouse.Params.FileDoc do
       |> :binary.split(["\n---\n", "\r\n---\r\n"])
       |> tl()
       |> hd()
+      |> String.replace("\r\n", "\n")
 
     {meta, content_part}
   end
