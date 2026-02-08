@@ -1,4 +1,4 @@
-defmodule Greenhouse.Params.FileDoc do
+defmodule Greenhouse.Content.FileDoc do
   defstruct [:id, :created_at, :updated_at, :body, :metadata]
 
   def from_path(path) do

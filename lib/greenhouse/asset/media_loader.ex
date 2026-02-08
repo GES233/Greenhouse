@@ -31,7 +31,7 @@ defmodule Greenhouse.Steps.MediaLoader do
 end
 
 defmodule Greenhouse.Steps.MediaLoader.InnerMacro do
-  alias Greenhouse.Params.Media
+  alias Greenhouse.Asset.Media
   alias Greenhouse.Steps.MediaLoader
 
   defmacro def_media_loader(func_name, extensions, media_type, out_key) do
@@ -56,7 +56,7 @@ defmodule Greenhouse.Steps.MediaLoader.InnerMacro do
 end
 
 defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
-  alias Greenhouse.Params.Media
+  alias Greenhouse.Asset.Media
   import Greenhouse.Steps.MediaLoader.InnerMacro
 
   @doc """

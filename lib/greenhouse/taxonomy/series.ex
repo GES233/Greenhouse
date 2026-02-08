@@ -1,4 +1,4 @@
-defmodule Greenhouse.Params.Index.Series do
+defmodule Greenhouse.Taxonomy.Series do
   def get_id_tag_pair(posts_map) do
     posts_map
     |> Enum.map(fn {id, post} -> {id, post.index_view[:series]} end)

@@ -1,7 +1,7 @@
 defmodule Greenhouse.Steps.ContentReplacer do
   require Orchid.ParamFactory
   use Orchid.Step
-  alias Greenhouse.Params.Link
+  alias Greenhouse.Cite.Link
 
   @replaced_pattern ~r/:\{(\S+)\}/
 

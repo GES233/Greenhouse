@@ -1,5 +1,6 @@
-defmodule Greenhouse.Params.Link do
-  alias Greenhouse.Params.{Post, Page, Media}
+defmodule Greenhouse.Cite.Link do
+  alias Greenhouse.Content.{Post, Page}
+  alias Greenhouse.Asset.Media
 
   @root "/"
 

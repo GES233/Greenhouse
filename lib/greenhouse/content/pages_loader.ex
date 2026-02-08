@@ -1,7 +1,4 @@
-defmodule Greenhouse.Steps.PagesLoader do
-  @spec as_declarative(keyword()) :: Orchid.Step.t()
-  def as_declarative(opts \\ []), do: {__MODULE__, :page_root_path, :pages_map, opts}
-
+defmodule Greenhouse.Content.PageLoader do
   use Orchid.Step
 
   def run(root_path, step_options) do
@@ -29,7 +26,7 @@ defmodule Greenhouse.Steps.PagesLoader do
   def seperate_paths(%Orchid.Param{payload: root_path}, step_options) do
     opts =
       step_options
-      |> Greenhouse.Steps.Helpers.drop_orchid_native()
+      |> Orchid.Steps.Helpers.drop_orchid_native()
       |> NimbleOptions.validate!(@paths_schema)
 
     about_location = Path.join(root_path, opts[:about_location])
@@ -39,10 +36,10 @@ defmodule Greenhouse.Steps.PagesLoader do
   end
 
   def load_about(about_path) do
-    Greenhouse.Params.FileDoc.from_path(about_path)
+    Greenhouse.Content.FileDoc.from_path(about_path)
     |> case do
-      doc = %Greenhouse.Params.FileDoc{} ->
-        Greenhouse.Params.Page.from_file_doc(doc)
+      doc = %Greenhouse.Content.FileDoc{} ->
+        Greenhouse.Content.Page.from_file_doc(doc)
 
       error ->
         error
@@ -50,10 +47,10 @@ defmodule Greenhouse.Steps.PagesLoader do
   end
 
   def load_friends(friends_path) do
-    Greenhouse.Params.FileDoc.from_path(friends_path)
+    Greenhouse.Content.FileDoc.from_path(friends_path)
     |> case do
-      doc = %Greenhouse.Params.FileDoc{} ->
-        Greenhouse.Params.Page.from_file_doc(doc)
+      doc = %Greenhouse.Content.FileDoc{} ->
+        Greenhouse.Content.Page.from_file_doc(doc)
 
       error ->
         error

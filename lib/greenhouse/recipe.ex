@@ -16,17 +16,15 @@ defmodule Greenhouse.Recipe do
   end
 
   def build() do
-    %{
-      R.new(
-        List.flatten([
-          S.PostsLoader.as_declarative(),
-          S.PagesLoader.as_declarative(),
-          S.MediaLoader.as_declarative(),
-          S.ContentReplacer.as_declarative(),
-          S.HTMLConvertorWithBibliography.as_declarative()
-        ])
-      )
-      | name: :build
-    }
+    R.new(
+      List.flatten([
+        {Greenhouse.Content.PostsLoader, :posts_path, :posts_map, []},
+        {Greenhouse.Content.PageLoader, :page_root_path, :pages_map, []},
+        S.MediaLoader.as_declarative(),
+        S.ContentReplacer.as_declarative(),
+        S.HTMLConvertorWithBibliography.as_declarative()
+      ]),
+      name: :build
+    )
   end
 end

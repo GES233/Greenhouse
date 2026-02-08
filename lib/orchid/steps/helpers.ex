@@ -1,4 +1,4 @@
-defmodule Greenhouse.Steps.Helpers do
+defmodule Orchid.Steps.Helpers do
   @orchid_internal_keys [
     :__orchid_workflow_ctx__,
     :__reporter_ctx__

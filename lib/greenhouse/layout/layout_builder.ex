@@ -1,5 +1,6 @@
-defmodule Greenhouse.Steps.LayoutBuilder do
-  alias Greenhouse.Params.{Post, Page, Link}
+defmodule Greenhouse.Layout.Builder do
+  alias Greenhouse.Content.{Post, Page}
+  import Greenhouse.Cite.Link
   use Orchid.Step
 
   @spec as_declarative(keyword()) :: [Orchid.Step.t()]
@@ -19,10 +20,10 @@ defmodule Greenhouse.Steps.LayoutBuilder do
   end
 
   def add_layout(%Post{} = post) do
-    {Link.convert(post), ""}
+    {convert(post), ""}
   end
 
   def add_layout(%Page{} = page) do
-    {Link.convert(page), ""}
+    {convert(page), ""}
   end
 end

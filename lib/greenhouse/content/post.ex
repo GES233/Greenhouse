@@ -1,4 +1,4 @@
-defmodule Greenhouse.Params.Post do
+defmodule Greenhouse.Content.Post do
   @type t :: %__MODULE__{
           id: binary(),
           title: binary(),
@@ -28,7 +28,7 @@ defmodule Greenhouse.Params.Post do
   ]
 
   def from_file_doc(
-        %Greenhouse.Params.FileDoc{
+        %Greenhouse.Content.FileDoc{
           id: id,
           created_at: created_at,
           updated_at: updated_at,

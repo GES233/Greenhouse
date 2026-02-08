@@ -1,12 +1,9 @@
-defmodule Greenhouse.Steps.PostsLoader do
+defmodule Greenhouse.Content.PostsLoader do
   @moduledoc """
   Load content into orchid's params.
   """
   use Orchid.Step
-  import Greenhouse.Steps.Helpers
-
-  @spec as_declarative(keyword()) :: Orchid.Step.t()
-  def as_declarative(opts \\ []), do: {__MODULE__, :posts_path, :posts_map, opts}
+  import Orchid.Steps.Helpers
 
   @opts_schema [
     ignore_markdown: [
@@ -71,7 +68,7 @@ defmodule Greenhouse.Steps.PostsLoader do
 
   defp parse_single_post(path, root) do
     path
-    |> Greenhouse.Params.FileDoc.from_path()
-    |> Greenhouse.Params.Post.from_file_doc(root, Path.extname(path))
+    |> Greenhouse.Content.FileDoc.from_path()
+    |> Greenhouse.Content.Post.from_file_doc(root, Path.extname(path))
   end
 end

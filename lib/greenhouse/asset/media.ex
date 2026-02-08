@@ -1,4 +1,4 @@
-defmodule Greenhouse.Params.Media do
+defmodule Greenhouse.Asset.Media do
   @moduledoc """
   媒体资源本体优先。
 
@@ -58,10 +58,10 @@ defmodule Greenhouse.Params.Media do
   @doc """
     ### Examples
 
-      Greenhouse.Params.Media.path_to_media(
+      Greenhouse.Asset.Media.path_to_media(
         "D:/Blog/source/img/snippet/zhihu-answer-3062464204.png",
         "D:/CodeRepo/ElixirPlayground/greenhouse",
-        Greenhouse.Params.Media.Picture
+        Greenhouse.Asset.Media.Picture
       )
   """
   def path_to_media(path, target_root, handler) when is_binary(path) do
@@ -82,12 +82,12 @@ defmodule Greenhouse.Params.Media do
   end
 end
 
-defmodule Greenhouse.Params.Media.Picture do
-  @behaviour Greenhouse.Params.Media
+defmodule Greenhouse.Asset.Media.Picture do
+  @behaviour Greenhouse.Asset.Media
 
   @impl true
   def route_handler(path) do
-    case Greenhouse.Params.Media.maybe_series(path, "img") do
+    case Greenhouse.Asset.Media.maybe_series(path, "img") do
       {id, {series, id_under_seires, ext}} -> {id, "/image/#{series}/#{id_under_seires}.#{ext}"}
       {id, {id_under_seires, ext}} -> {id, "/image/#{id_under_seires}.#{ext}"}
     end
@@ -108,12 +108,12 @@ defmodule Greenhouse.Params.Media.Picture do
   end
 end
 
-defmodule Greenhouse.Params.Media.PDF do
-  @behaviour Greenhouse.Params.Media
+defmodule Greenhouse.Asset.Media.PDF do
+  @behaviour Greenhouse.Asset.Media
 
   @impl true
   def route_handler(path) do
-    case Greenhouse.Params.Media.maybe_series(path, "pdf") do
+    case Greenhouse.Asset.Media.maybe_series(path, "pdf") do
       {id, {series, id_under_seires, ext}} ->
         {id, "archive/pdf/#{series}/#{id_under_seires}.#{ext}"}
 
@@ -137,8 +137,8 @@ defmodule Greenhouse.Params.Media.PDF do
   end
 end
 
-defmodule Greenhouse.Params.Media.Graphviz do
-  @behaviour Greenhouse.Params.Media
+defmodule Greenhouse.Asset.Media.Graphviz do
+  @behaviour Greenhouse.Asset.Media
   require Logger
 
   defmodule Runner do
@@ -157,7 +157,7 @@ defmodule Greenhouse.Params.Media.Graphviz do
 
   @impl true
   def route_handler(location) do
-    case Greenhouse.Params.Media.maybe_series(location, "src") do
+    case Greenhouse.Asset.Media.maybe_series(location, "src") do
       {id, {series, id_under_seires, _ext}} -> {id, "svg/#{series}/#{id_under_seires}.svg"}
       {id, {id_under_seires, _ext}} -> {id, "svg/#{id_under_seires}.svg"}
     end
@@ -191,7 +191,7 @@ defmodule Greenhouse.Params.Media.Graphviz do
   end
 end
 
-defmodule Greenhouse.Params.Media.Lilypond do
-  # @behaviour Greenhouse.Params.Media
+defmodule Greenhouse.Asset.Media.Lilypond do
+  # @behaviour Greenhouse.Asset.Media
   require Logger
 end

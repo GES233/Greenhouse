@@ -1,4 +1,4 @@
-defmodule Greenhouse.Steps.TaxonomyBuilder do
+defmodule Greenhouse.Taxonomy.Builder do
   @spec as_declarative(keyword()) :: [Orchid.Step.t()]
   def as_declarative(_opts \\ []),
     do: [
