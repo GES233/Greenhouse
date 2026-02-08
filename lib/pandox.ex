@@ -137,3 +137,52 @@ defmodule Pandox do
     }
   end
 end
+
+defimpl Inspect, for: Pandox.Doc do
+  import Inspect.Algebra
+
+  def inspect(doc, opts) do
+    # 构造一个展示用的 Keyword List
+    # 这样可以保证 inspect 输出的顺序整洁
+    payload = [
+      body: format_long_text(doc.body),
+      toc: format_long_text(doc.toc),
+      summary: format_long_text(doc.summary),
+      bibliography: format_long_text(doc.bibliography),
+      footnotes: format_long_text(doc.footnotes),
+      meta: format_long_text(doc.meta)
+    ]
+
+    # 使用 Inspect.Algebra 拼接文档
+    # 最终输出形如: #Pandox.Doc<[body: "...", ...]>
+    concat(["#Pandox.Doc<", to_doc(payload, opts), ">"])
+  end
+
+  # 处理 nil 的情况
+  defp format_long_text(nil), do: nil
+
+  # 处理二进制字符串的情况
+  defp format_long_text(text) when is_binary(text) do
+    limit = 100
+    size = byte_size(text)
+
+    if size > limit do
+      # 1. 截取前 100 个字符 (使用 String.slice 避免切断 UTF-8 多字节字符)
+      # 虽然题目要求 100 bytes，但在 Elixir 中截断显示通常按字符更安全
+      prefix = String.slice(text, 0, limit)
+
+      # 2. 移除换行符，避免日志刷屏，保持紧凑
+      # 如果你希望保留换行结构，可以去掉这行
+      clean_prefix = String.replace(prefix, ~r/\R/, " ")
+
+      # 3. 构造截断提示字符串
+      # 注意：这里返回的是一个字符串，最终 Inspect 会加上双引号显示它
+      "#{clean_prefix} ... <> (total #{size} bytes)"
+    else
+      text
+    end
+  end
+
+  # 兜底情况（虽然理论上 struct 定义里这些字段应当是 binary 或 nil）
+  defp format_long_text(other), do: other
+end
