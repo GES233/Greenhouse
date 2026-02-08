@@ -1,4 +1,4 @@
-defmodule Greenhouse.Steps.HTMLConvertorWithBibliography do
+defmodule Greenhouse.Steps.MarkdownToHTML do
   require Logger
   use Orchid.Step
 
@@ -42,32 +42,8 @@ defmodule Greenhouse.Steps.HTMLConvertorWithBibliography do
       post_or_page
       | doc_struct:
           post_or_page
-          |> validate_bibliography_and_get_pandoc_meta(bib_entry)
+          |> Greenhouse.Bibliography.to_get_pandoc_meta(bib_entry)
           |> then(&Pandox.render_markdown_to_html(post_or_page.content, &1))
     }
-  end
-
-  def validate_bibliography_and_get_pandoc_meta(%{title: title, extra: extra}, bib_entry) do
-    with pandoc_options when map_size(pandoc_options) > 0 <- Map.get(extra, "pandoc", %{}),
-         {:ok, bib_path_realtive} <- Map.fetch(pandoc_options, "bibliography"),
-         bib_path = Path.join([bib_entry, bib_path_realtive]),
-         true <- File.exists?(bib_path) do
-      %{
-        "bibliography" => bib_path,
-        "title" => title
-      }
-    else
-      # `pandoc` doesn't exist.
-      %{} ->
-        %{}
-
-      # `bibliography` doesn't exist in pandoc.
-      :error ->
-        %{}
-
-      # Target file doesn't exist.
-      false ->
-        %{}
-    end
   end
 end
