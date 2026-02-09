@@ -2,14 +2,12 @@ defmodule Pandox do
   @moduledoc """
   Documentation for `Pandox`.
   """
+
   require Logger
 
-  # 默认的 pandoc 可执行文件的地址
-  # （我假定你是通过 Scoop/apt/Homebrew 等方式安装的）
   @pandoc_executable_name System.find_executable("pandoc") || "pandoc"
 
   def get_pandoc() do
-    # 还要考虑从配置中读取可执行文件的地址的情况
     @pandoc_executable_name
   end
 
@@ -30,19 +28,16 @@ defmodule Pandox do
     --citeproc
   )
 
-  def render_markdown_to_html(content, metadata, _opts \\ []) do
+  def render_markdown_to_html(content, {metadata, metadata_to_pandoc}, _opts \\ []) do
     input_file = Path.join(System.tmp_dir!(), "input_#{System.unique_integer()}.md")
     output_file = Path.join(System.tmp_dir!(), "output_#{System.unique_integer()}.html")
 
-    {csl, metadata_to_pandoc} = Map.pop(metadata, "csl")
+    csl = Map.get(metadata, "csl", "GB7714")
     File.write!(input_file, build_front_matter(metadata_to_pandoc) <> "\n" <> content)
 
-    # 调用 Pandoc
     res =
       args(input_file, output_file, csl)
       # |> IO.inspect(label: :Args)
-      # 使用 System.cmd 会报错
-      # |> then(&System.cmd(get_pandoc(), &1))
       |> Enum.join(" ")
       |> then(&System.shell("#{get_pandoc()} #{&1}"))
       |> handle_result(output_file)
@@ -117,8 +112,6 @@ defmodule Pandox do
   end
 
   defp parse_pandoc_output(raw_output) do
-    # 使用正则或字符串分割提取各个部分
-    # 这里写一个通用的提取器
     extract = fn section_name ->
       regex = ~r/<!--SECTION_START:#{section_name}-->(.*?)<!--SECTION_END:#{section_name}-->/s
 
@@ -144,8 +137,6 @@ defimpl Inspect, for: Pandox.Doc do
   import Inspect.Algebra
 
   def inspect(doc, opts) do
-    # 构造一个展示用的 Keyword List
-    # 这样可以保证 inspect 输出的顺序整洁
     payload = [
       body: format_long_text(doc.body),
       toc: format_long_text(doc.toc),
@@ -155,36 +146,26 @@ defimpl Inspect, for: Pandox.Doc do
       meta: format_long_text(doc.meta)
     ]
 
-    # 使用 Inspect.Algebra 拼接文档
-    # 最终输出形如: #Pandox.Doc<[body: "...", ...]>
+    # 最终输出形如 #Pandox.Doc<[body: "...", ...]>
     concat(["#Pandox.Doc<", to_doc(payload, opts), ">"])
   end
 
-  # 处理 nil 的情况
   defp format_long_text(nil), do: nil
 
-  # 处理二进制字符串的情况
   defp format_long_text(text) when is_binary(text) do
     limit = 100
     size = byte_size(text)
 
     if size > limit do
-      # 1. 截取前 100 个字符 (使用 String.slice 避免切断 UTF-8 多字节字符)
-      # 虽然题目要求 100 bytes，但在 Elixir 中截断显示通常按字符更安全
       prefix = String.slice(text, 0, limit)
 
-      # 2. 移除换行符，避免日志刷屏，保持紧凑
-      # 如果你希望保留换行结构，可以去掉这行
       clean_prefix = String.replace(prefix, ~r/\R/, " ")
 
-      # 3. 构造截断提示字符串
-      # 注意：这里返回的是一个字符串，最终 Inspect 会加上双引号显示它
       "#{clean_prefix} ... <> (total #{size} bytes)"
     else
       text
     end
   end
 
-  # 兜底情况（虽然理论上 struct 定义里这些字段应当是 binary 或 nil）
   defp format_long_text(other), do: other
 end

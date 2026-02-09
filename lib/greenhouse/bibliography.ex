@@ -19,24 +19,23 @@ defmodule Greenhouse.Bibliography do
       # TODO: Load csl via tag or categories
       # Get csl file via
       # https://www.zotero.org/styles?q=...
-
-      %{
-        "bibliography" => bib_path,
-        "csl" => Map.get(pandoc_options, "csl") || "GB7714",
-        "title" => title
-      }
+      {%{"csl" => Map.get(pandoc_options, "csl", "GB7714")},
+       %{
+         "bibliography" => bib_path,
+         "title" => title
+       }}
     else
       # `pandoc` doesn't exist.
       %{} ->
-        %{}
+        {%{}, %{}}
 
       # `bibliography` doesn't exist in pandoc.
       :error ->
-        %{}
+        {%{}, %{}}
 
       # Target file doesn't exist.
       false ->
-        %{}
+        {%{}, %{}}
     end
   end
 end
