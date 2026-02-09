@@ -30,17 +30,16 @@ defmodule Pandox do
     --citeproc
   )
 
-  def render_markdown_to_html(content, metadata_to_pandoc, _opts \\ []) do
-    # 生成临时文件
+  def render_markdown_to_html(content, metadata, _opts \\ []) do
     input_file = Path.join(System.tmp_dir!(), "input_#{System.unique_integer()}.md")
     output_file = Path.join(System.tmp_dir!(), "output_#{System.unique_integer()}.html")
 
-    # 写入内容（包含元数据）
+    {csl, metadata_to_pandoc} = Map.pop(metadata, "csl")
     File.write!(input_file, build_front_matter(metadata_to_pandoc) <> "\n" <> content)
 
     # 调用 Pandoc
     res =
-      args(input_file, output_file)
+      args(input_file, output_file, csl)
       # |> IO.inspect(label: :Args)
       # 使用 System.cmd 会报错
       # |> then(&System.cmd(get_pandoc(), &1))
@@ -54,11 +53,14 @@ defmodule Pandox do
     res
   end
 
-  def args(input, output) do
+  def args(input, output, csl) do
     yaml_path = "priv/pandoc_cressref.yaml" |> Path.absname()
     yaml = "-M crossrefYaml=\"" <> yaml_path <> "\""
 
-    csl_path = "priv/csl/GB7714.csl" |> Path.absname()
+    csl_path =
+      ("priv/csl/" <> csl <> ".csl")
+      |> Path.absname()
+
     csl = "--csl=\"" <> csl_path <> "\""
 
     lua_root_path = "priv/lua_filters/structure.lua" |> Path.absname()

@@ -6,6 +6,7 @@ defmodule Greenhouse.Bibliography do
          true <- File.exists?(bib_path) do
       %{
         "bibliography" => bib_path,
+        "csl" => Map.get(pandoc_options, "csl") || "GB7714",
         "title" => title
       }
     else
