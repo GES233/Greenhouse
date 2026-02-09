@@ -1,30 +1,7 @@
-defmodule Greenhouse.Steps.ContentReplacer do
-  require Orchid.ParamFactory
-  use Orchid.Step
+defmodule Greenhouse.Cite.ContentReplacer do
   alias Greenhouse.Cite.Link
 
   @replaced_pattern ~r/:\{(\S+)\}/
-
-  @spec as_declarative(keyword()) :: Orchid.Step.t()
-  def as_declarative(opts \\ []),
-    do:
-      {__MODULE__, [:posts_map, :pages_map, :media_map],
-       [:replaced_posts_map, :replaced_pages_map], opts}
-
-  def run([posts_map, pages_map, media_map], _step_options) do
-    {updated_posts_map, updated_pages_map} =
-      replace_posts(
-        Orchid.Param.get_payload(posts_map),
-        Orchid.Param.get_payload(pages_map),
-        Orchid.Param.get_payload(media_map)
-      )
-
-    {:ok,
-     [
-       Orchid.ParamFactory.to_param(updated_posts_map, :map),
-       Orchid.ParamFactory.to_param(updated_pages_map, :map)
-     ]}
-  end
 
   def replace_posts(posts_map, pages_map, media_map) do
     maybe_resource_map =

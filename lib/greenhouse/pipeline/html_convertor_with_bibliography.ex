@@ -2,13 +2,6 @@ defmodule Greenhouse.Steps.MarkdownToHTML do
   require Logger
   use Orchid.Step
 
-  @spec as_declarative(keyword()) :: [Orchid.Step.t()]
-  def as_declarative(_opts \\ []),
-    do: [
-      {__MODULE__, [:replaced_posts_map, :bib_entry], :posts_map_with_doc_struct},
-      {__MODULE__, [:replaced_pages_map, :bib_entry], :pages_map_with_doc_struct}
-    ]
-
   def run([posts_map_or_pages_map, bib_entry], _step_options) do
     bib_entry_path = Orchid.Param.get_payload(bib_entry)
 

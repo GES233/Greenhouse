@@ -1,5 +1,4 @@
 defmodule Greenhouse.Pipeline.Recipe do
-  alias Greenhouse.Steps, as: S
   alias Orchid.Recipe, as: R
 
   def init_building() do
@@ -20,9 +19,13 @@ defmodule Greenhouse.Pipeline.Recipe do
       List.flatten([
         {&Greenhouse.Pipeline.ContentSteps.load_posts/2, :posts_path, :posts_map, []},
         {&Greenhouse.Pipeline.ContentSteps.load_pages/2, :page_root_path, :pages_map, []},
-        S.MediaLoader.as_declarative(),
-        S.ContentReplacer.as_declarative(),
-        S.MarkdownToHTML.as_declarative()
+        Greenhouse.Media.MediaLoader.as_declarative(),
+        {&Greenhouse.Pipeline.ContentSteps.replace_link/2, [:posts_map, :pages_map, :media_map],
+         [:replaced_posts_map, :replaced_pages_map], []},
+        {Greenhouse.Steps.MarkdownToHTML, [:replaced_posts_map, :bib_entry],
+         :posts_map_with_doc_struct},
+        {Greenhouse.Steps.MarkdownToHTML, [:replaced_pages_map, :bib_entry],
+         :pages_map_with_doc_struct}
       ]),
       name: :build
     )

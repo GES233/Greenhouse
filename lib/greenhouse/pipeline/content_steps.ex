@@ -1,5 +1,6 @@
 defmodule Greenhouse.Pipeline.ContentSteps do
   import Orchid.Steps.Helpers
+  require Orchid.ParamFactory
 
   ## Load Posts
 
@@ -95,5 +96,22 @@ defmodule Greenhouse.Pipeline.ContentSteps do
       error ->
         error
     end
+  end
+
+  ## Replace Content's Link
+
+  def replace_link([posts_map, pages_map, media_map], _step_options) do
+    {updated_posts_map, updated_pages_map} =
+      Greenhouse.Cite.ContentReplacer.replace_posts(
+        Orchid.Param.get_payload(posts_map),
+        Orchid.Param.get_payload(pages_map),
+        Orchid.Param.get_payload(media_map)
+      )
+
+    {:ok,
+     [
+       Orchid.ParamFactory.to_param(updated_posts_map, :map),
+       Orchid.ParamFactory.to_param(updated_pages_map, :map)
+     ]}
   end
 end

@@ -1,5 +1,5 @@
-defmodule Greenhouse.Steps.MediaLoader do
-  alias Greenhouse.Steps.MediaLoader.InnerRecipe, as: S
+defmodule Greenhouse.Media.MediaLoader do
+  alias Greenhouse.Media.MediaLoader.InnerRecipe, as: S
 
   @spec as_declarative(generated_root_target :: Path.t() | nil) :: Orchid.Step.t()
   def as_declarative(generated_root_target \\ nil) do
@@ -30,9 +30,9 @@ defmodule Greenhouse.Steps.MediaLoader do
   end
 end
 
-defmodule Greenhouse.Steps.MediaLoader.InnerMacro do
+defmodule Greenhouse.Media.MediaLoader.InnerMacro do
   alias Greenhouse.Asset.Media
-  alias Greenhouse.Steps.MediaLoader
+  alias Greenhouse.Media.MediaLoader
 
   defmacro def_media_loader(func_name, extensions, media_type, out_key) do
     quote do
@@ -55,9 +55,9 @@ defmodule Greenhouse.Steps.MediaLoader.InnerMacro do
   end
 end
 
-defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
+defmodule Greenhouse.Media.MediaLoader.InnerRecipe do
   alias Greenhouse.Asset.Media
-  import Greenhouse.Steps.MediaLoader.InnerMacro
+  import Greenhouse.Media.MediaLoader.InnerMacro
 
   @doc """
   ### Examples
@@ -65,7 +65,7 @@ defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
       Orchid.run(
         Orchid.Recipe.new(
           [
-            {&Greenhouse.Steps.MediaLoader.InnerRecipe.load_images/2, :img_root, :img_map}
+            {&Greenhouse.Media.MediaLoader.InnerRecipe.load_images/2, :img_root, :img_map}
           ]
         ),
         [
@@ -81,7 +81,7 @@ defmodule Greenhouse.Steps.MediaLoader.InnerRecipe do
       Orchid.run(
         Orchid.Recipe.new(
           [
-            {&Greenhouse.Steps.MediaLoader.InnerRecipe.load_pdfs/2, :pdf_root, :pdf_map}
+            {&Greenhouse.Media.MediaLoader.InnerRecipe.load_pdfs/2, :pdf_root, :pdf_map}
           ]
         ),
         [
