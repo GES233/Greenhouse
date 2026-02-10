@@ -1,4 +1,3 @@
-# Required test
 defmodule Greenhouse.Taxonomy.CategoryItem do
   @type t :: %__MODULE__{
           name: atom(),
@@ -7,7 +6,6 @@ defmodule Greenhouse.Taxonomy.CategoryItem do
           posts: [atom() | binary()]
         }
   defstruct [:name, :relative_depth, :child, :posts]
-  # 因为属别与帖子是多对多的关系，所以这里的帖子只保留 id
 
   @init_node_name "未归类"
 
@@ -54,7 +52,7 @@ defmodule Greenhouse.Taxonomy.Categories do
   @doc """
   从所有文章中提取分类并构建树形结构。
 
-  参数: posts - [%{categories: [list(binary)]}]
+  参数: {posts_id, categories}
   返回: %Node{} 的树形结构
   """
   def build_category_tree(id_categories_pair) do

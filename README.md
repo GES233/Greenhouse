@@ -7,14 +7,13 @@ A project used to measure feasibility for [orchid](https://hex.pm/packages/orchi
 ```mermaid
 flowchart TD
   Inputs
-  PL["PostsLoader"]
+  PL["ContentSteps(exclude replace_link/2)"]
   ML["MediaLoader"]
   BE["MarkdownToHTML"]
-  MR["MediaReplace"]
-  iTB["TaxonomyBuilder"]
+  MR["ContentSteps.replace_link/2"]
+  iTB["TaxonomyStep"]
   APL["AddPostsLayout"]
   APgL["AddPagesLayout"]
-  MO["MediaOperator"]
 
   Inputs --posts_path--> PL
   Inputs --media_path--> ML
@@ -31,7 +30,5 @@ flowchart TD
   APL --> o1("saved_path")
   iTB --indcies_metadata--> APgL
   APgL --> o2("saved_path")
-  ML --media_map--> MO
-  MO --> o3("saved_path")
 
 ```
