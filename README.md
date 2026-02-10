@@ -7,28 +7,25 @@ A project used to measure feasibility for [orchid](https://hex.pm/packages/orchi
 ```mermaid
 flowchart TD
   Inputs
-  PL["ContentSteps(exclude replace_link/2)"]
+  PL["ContentSteps.load_posts/2"]
+  PgL["ContentSteps.load_pages/2"]
   ML["MediaLoader"]
-  BE["MarkdownToHTML"]
+  MH1["MarkdownToHTML"]
+  MH2["MarkdownToHTML"]
   MR["ContentSteps.replace_link/2"]
   iTB["TaxonomyStep"]
-  APL["AddPostsLayout"]
-  APgL["AddPagesLayout"]
+  AL["AddLayout"]
 
   Inputs --posts_path--> PL
+  Inputs --page_root_path--> PgL
   Inputs --media_path--> ML
   PL --posts_map--> MR
+  PgL --pages_map--> MR
   ML --media_map--> MR
-  MR --reallocated_posts_map--> BE
-  %% Can be invoked anything
-  %% If input is posts_map-like
-  %% Because only some several fields were used
-  BE --posts_map_with_bib--> iTB
-  %% Options
-  itb_opts("pagination, ...") --> iTB
-  BE --posts_with_doc_struct--> APL
-  APL --> o1("saved_path")
-  iTB --indcies_metadata--> APgL
-  APgL --> o2("saved_path")
+  MR --replaced_posts_map--> MH1
+  MR --replaced_pages_map--> MH2
+  MH1 --posts_map_with_doc_struct--> iTB
+  MH1 --posts_map_with_doc_struct--> AL
+  MH2 --pages_map_with_doc_struct--> AL
 
 ```
