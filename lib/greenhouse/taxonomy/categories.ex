@@ -23,25 +23,30 @@ end
 defmodule Greenhouse.Taxonomy.Categories do
   alias Greenhouse.Taxonomy.CategoryItem, as: Node
 
-  # 类属
-  def get_all_categories_from_posts(posts) do
-    posts
-    |> Enum.reduce([], &(&1.index_view[:categories] ++ &2))
+  def get_id_categories_pair(posts_map) do
+    posts_map
+    |> Enum.map(fn {id, post} -> {id, post.index_view[:categories]} end)
+    |> Enum.reject(fn {_, maybe_series} -> is_nil(maybe_series) end)
+  end
+
+  def get_all_categories_from_posts(id_categories_pair) do
+    id_categories_pair
+    |> Enum.reduce([], fn {_id, categories}, acc -> [categories | acc] end)
     |> Enum.uniq()
   end
 
-  def get_all_posts_from_specific_category(posts, category_name) do
+  def get_all_posts_from_specific_category(id_categories_pair, category_name) do
     # 最好用未归类的
-    categories = get_all_categories_from_posts(posts)
+    categories = get_all_categories_from_posts(id_categories_pair)
 
     cond do
       category_name not in categories ->
         []
 
       true ->
-        posts
-        |> Enum.filter(&(category_name in &1.categories))
-        |> Enum.map(& &1.id)
+        id_categories_pair
+        |> Enum.filter(fn {_id, categories} -> category_name in categories end)
+        |> Enum.map(fn {id, _} -> id end)
     end
   end
 
@@ -49,21 +54,13 @@ defmodule Greenhouse.Taxonomy.Categories do
   @doc """
   从所有文章中提取分类并构建树形结构。
 
-  参数: posts - [%Blog.Posts{categories: [list(binary)]}]
+  参数: posts - [%{categories: [list(binary)]}]
   返回: %Node{} 的树形结构
   """
-  def build_category_tree(posts) do
-    # 获取所有分类并附加文章ID
-    all_categories_with_posts =
-      Enum.flat_map(posts, fn post ->
-        Enum.map(post.index_view[:categories], &{&1, post.id})
-      end)
-
-    # 初始化根节点
-    root = Node.init_node()
-
-    # 递归构建树
-    Enum.reduce(all_categories_with_posts, root, fn {category_path, post_id}, acc ->
+  def build_category_tree(id_categories_pair) do
+    id_categories_pair
+    |> Enum.flat_map(fn {id, c} -> Enum.map(c, &{&1, id}) end)
+    |> Enum.reduce(Node.init_node(), fn {category_path, post_id}, acc ->
       insert_category(acc, List.wrap(category_path), post_id, 0)
     end)
   end

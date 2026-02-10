@@ -10,11 +10,14 @@ bib_entry = Path.join(root_path, "_bibs")
 import Orchid.ParamFactory
 
 # Run
-Orchid.run(Greenhouse.Pipeline.Recipe.build(), [
+res = Orchid.run(Greenhouse.Pipeline.Recipe.build(), [
   to_param(page_root_path, :path),
   to_param(posts_path, :path),
   to_param(pic_path, :path),
   to_param(pdf_path, :path),
   to_param(dot_path, :path),
   to_param(bib_entry, :path)
-])
+]) |> case do
+  {:ok, res} -> res
+  {:error, err} -> err
+end

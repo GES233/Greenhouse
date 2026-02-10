@@ -15,8 +15,7 @@ defmodule Greenhouse.Pipeline.Recipe do
   end
 
   def build() do
-    R.new(
-      List.flatten([
+    R.new([
         {&Greenhouse.Pipeline.ContentSteps.load_posts/2, :posts_path, :posts_map, []},
         {&Greenhouse.Pipeline.ContentSteps.load_pages/2, :page_root_path, :pages_map, []},
         Greenhouse.Media.MediaLoader.as_declarative(),
@@ -26,7 +25,9 @@ defmodule Greenhouse.Pipeline.Recipe do
          :posts_map_with_doc_struct},
         {Greenhouse.Steps.MarkdownToHTML, [:replaced_pages_map, :bib_entry],
          :pages_map_with_doc_struct}
-      ]),
+        # {Greenhouse.Layout.Builder, :posts_map_with_doc_struct, :post_router_content_pair},
+        # {Greenhouse.Layout.Builder, :pages_map_with_doc_struct, :page_router_content_pair}
+      ],
       name: :build
     )
   end
