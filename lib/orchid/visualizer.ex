@@ -117,3 +117,46 @@ defmodule Orchid.Visualizer do
   defp get_type({mod, _, _}) when is_atom(mod), do: :module
   defp get_type({func, _, _}) when is_function(func), do: :function
 end
+
+defmodule Orchid.Visualizer.MermaidAdapter do
+  @moduledoc """
+  Converts Orchid.Visualizer struct to Mermaid Syntax.
+  """
+
+  def to_mermaid(%{nodes: nodes, edges: edges}) do
+    [
+      "flowchart TD",
+      "  %% Nodes",
+      Enum.map(nodes, &render_node/1),
+      "",
+      "  %% Edges",
+      Enum.map(edges, &render_edge/1)
+    ]
+    |> List.flatten()
+    |> Enum.join("\n")
+  end
+
+  # 根据不同的类型渲染不同的形状
+  # :module -> [[Label]] (Subroutine shape)
+  # :function -> (Label) (Rounded rect)
+  defp render_node(%{id: id, label: label, type: type}) do
+    safe_label = sanitize_label(label)
+
+    case type do
+      :module -> "  #{id}[[\"#{safe_label}\"]]"
+      :function -> "  #{id}(\"#{safe_label}\")"
+      _ -> "  #{id}[\"#{safe_label}\"]"
+    end
+  end
+
+  defp render_edge(%{source: source, target: target, label: label}) do
+    "  #{source} -- \"#{label}\" --> #{target}"
+  end
+
+  defp sanitize_label(label) do
+    label
+    |> String.replace("\"", "'")
+    |> String.replace("<", "[")
+    |> String.replace(">", "]")
+  end
+end

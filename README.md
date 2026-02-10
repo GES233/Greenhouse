@@ -6,26 +6,20 @@ A project used to measure feasibility for [orchid](https://hex.pm/packages/orchi
 
 ```mermaid
 flowchart TD
-  Inputs
-  PL["ContentSteps.load_posts/2"]
-  PgL["ContentSteps.load_pages/2"]
-  ML["MediaLoader"]
-  MH1["MarkdownToHTML"]
-  MH2["MarkdownToHTML"]
-  MR["ContentSteps.replace_link/2"]
-  iTB["TaxonomyStep"]
-  AL["AddLayout"]
+  %% Nodes
+  step_0("[0]Anonymous Fn &Greenhouse.Pipeline.ContentSteps.load_posts/2")
+  step_1("[1]Anonymous Fn &Greenhouse.Pipeline.ContentSteps.load_pages/2")
+  step_2[["[2]Step Elixir.Orchid.Step.NestedStep"]]
+  step_3("[3]Anonymous Fn &Greenhouse.Pipeline.ContentSteps.replace_link/2")
+  step_4[["[4]Step Elixir.Greenhouse.Steps.MarkdownToHTML"]]
+  step_5[["[5]Step Elixir.Greenhouse.Steps.MarkdownToHTML"]]
+  step_6[["[6]Step Elixir.Greenhouse.Pipeline.TaxonomyStep"]]
 
-  Inputs --posts_path--> PL
-  Inputs --page_root_path--> PgL
-  Inputs --media_path--> ML
-  PL --posts_map--> MR
-  PgL --pages_map--> MR
-  ML --media_map--> MR
-  MR --replaced_posts_map--> MH1
-  MR --replaced_pages_map--> MH2
-  MH1 --posts_map_with_doc_struct--> iTB
-  MH1 --posts_map_with_doc_struct--> AL
-  MH2 --pages_map_with_doc_struct--> AL
-
+  %% Edges
+  step_2 -- "media_map" --> step_3
+  step_1 -- "pages_map" --> step_3
+  step_0 -- "posts_map" --> step_3
+  step_3 -- "replaced_posts_map" --> step_4
+  step_3 -- "replaced_pages_map" --> step_5
+  step_0 -- "posts_map" --> step_6
 ```
