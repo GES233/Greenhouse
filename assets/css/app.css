@@ -6,7 +6,7 @@
 @source "../../templates";
 
 /* 使用的是 TailwindCSS-Standalone，
-  那几十兆中就正好包括了一些常见的插件，引入即可。
+  那一百几十兆中就正好包括了一些常见的插件，引入即可。
  */
 @plugin "@tailwindcss/typography";
 

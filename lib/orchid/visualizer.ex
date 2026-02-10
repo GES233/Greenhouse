@@ -61,6 +61,8 @@ defmodule Orchid.Visualizer do
           end)
           |> Enum.reject(&is_nil/1)
 
+        # TODO: 将 orphan_inputs_keys => input ports
+
         {[node | nodes_acc], new_edges ++ edges_acc}
       end)
 
@@ -131,6 +133,7 @@ defmodule Orchid.Visualizer.MermaidAdapter do
       "",
       "  %% Edges",
       Enum.map(edges, &render_edge/1)
+      # TODO: Add ports
     ]
     |> List.flatten()
     |> Enum.join("\n")
