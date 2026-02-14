@@ -4,6 +4,10 @@
   <%= if Map.get(@options, "math") do %>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <% end %>
+  <%= if Map.get(@options, "pdf") do %>
+  <% end %>
+  <%= if Map.get(@options, "music") do %>
+  <% end %>
   <%= if Map.get(@options, "calendar") do %>
     <!-- https://fullcalendar.io/docs/initialize-browser-esm -->
     <script type='importmap'>
