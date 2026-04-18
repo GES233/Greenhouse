@@ -22,8 +22,10 @@ defmodule Orchid.Visualizer do
 
         # 解析该步骤定义的输入和输出端口
         {_func, input_shape, output_shape} = step_def
-        input_ports = normalize_ports(input_shape)   # e.g. ["mid_a", "mid_b"]
-        output_ports = normalize_ports(output_shape) # e.g. ["out1", "mid_d"]
+        # e.g. ["mid_a", "mid_b"]
+        input_ports = normalize_ports(input_shape)
+        # e.g. ["out1", "mid_d"]
+        output_ports = normalize_ports(output_shape)
 
         # --- A. 构建节点 ---
         node = %{
@@ -53,9 +55,12 @@ defmodule Orchid.Visualizer do
                   id: "edge_#{source_node_id}_#{step_id}_#{port_name}",
                   source: source_node_id,
                   target: step_id,
-                  sourceHandle: source_handle, # 连线的起点端口
-                  targetHandle: port_name,     # 连线的终点端口
-                  label: to_string(port_name)  # 连线上显示的变量名
+                  # 连线的起点端口
+                  sourceHandle: source_handle,
+                  # 连线的终点端口
+                  targetHandle: port_name,
+                  # 连线上显示的变量名
+                  label: to_string(port_name)
                 }
             end
           end)
@@ -113,7 +118,9 @@ defmodule Orchid.Visualizer do
     |> then(&"[#{idx}]Step <#{&1}>")
   end
 
-  defp get_label({step_impl, _, _}, idx) when is_function(step_impl, 2), do: "[#{idx}]Anonymous Fn #{inspect(step_impl)}"
+  defp get_label({step_impl, _, _}, idx) when is_function(step_impl, 2),
+    do: "[#{idx}]Anonymous Fn #{inspect(step_impl)}"
+
   defp get_label({_, _, _}, idx), do: "[#{idx}]Step"
 
   defp get_type({mod, _, _}) when is_atom(mod), do: :module

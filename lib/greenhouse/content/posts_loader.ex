@@ -1,5 +1,4 @@
 defmodule Greenhouse.Content.PostsLoader do
-
   def posts_path_to_map(post_root_path, allow_ext, git_path) do
     find_posts(post_root_path, allow_ext)
     |> Task.async_stream(&parse_single_post(&1, git_path))

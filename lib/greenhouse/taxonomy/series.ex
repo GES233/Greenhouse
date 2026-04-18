@@ -14,8 +14,7 @@ defmodule Greenhouse.Taxonomy.Series do
 
   def get_series_posts_mapper(id_series_pair) do
     id_series_pair
-    |> Enum.map(fn {id, series} -> {series, id}
-    end)
+    |> Enum.map(fn {id, series} -> {series, id} end)
     |> Enum.group_by(fn {series, _id} -> series end, fn {_series, id} -> id end)
     |> Map.new()
   end
