@@ -61,27 +61,46 @@ defmodule Greenhouse.Theme.Default do
   end
 
   defp render_post_content(%Post{} = post) do
+    # Assuming post.doc_struct is a Pandox.Doc struct and we want its HTML body
+    # (adjust if it's deeply nested like post.doc_struct[:body])
+    html_body =
+      case post.doc_struct do
+        %{body: body} when is_list(body) -> IO.iodata_to_binary(body)
+        %{body: body} when is_binary(body) -> body
+        # Fallback if structure is different
+        doc -> Map.get(doc, :body, post.content)
+      end
+
     """
-    <article class="prose lg:prose-xl mx-auto p-4">
-      <header>
-        <h1>#{post.title}</h1>
-        #{if post.created_at, do: "<time>#{post.created_at}</time>", else: ""}
+    <article class="prose lg:prose-xl mx-auto p-4 max-w-4xl">
+      <header class="mb-8 border-b pb-4">
+        <h1 class="text-4xl font-serif text-gray-900">#{post.title}</h1>
+        <div class="mt-2 text-gray-500 text-sm">
+          #{if post.created_at, do: "<time>#{post.created_at}</time>", else: ""}
+        </div>
       </header>
-      <div class="content mt-8">
-        #{post.content}
+      <div class="content font-serif text-gray-800 leading-relaxed text-lg space-y-6">
+        #{html_body}
       </div>
     </article>
     """
   end
 
   defp render_page_content(%Page{} = page) do
+    html_body =
+      case page.doc_struct do
+        %{body: body} when is_list(body) -> IO.iodata_to_binary(body)
+        %{body: body} when is_binary(body) -> body
+        doc -> Map.get(doc, :body, page.content)
+      end
+
     """
-    <article class="prose lg:prose-xl mx-auto p-4">
-      <header>
-        <h1>#{page.title}</h1>
+    <article class="prose lg:prose-xl mx-auto p-4 max-w-4xl">
+      <header class="mb-8 border-b pb-4">
+        <h1 class="text-4xl font-serif text-gray-900">#{page.title}</h1>
       </header>
-      <div class="content mt-8">
-        #{page.content}
+      <div class="content font-serif text-gray-800 leading-relaxed text-lg space-y-6">
+        #{html_body}
       </div>
     </article>
     """
