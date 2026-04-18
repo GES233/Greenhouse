@@ -13,6 +13,8 @@ defmodule Greenhouse.Layout.Components do
     extract_pandoc_options(raw_option)
   end
 
+  def get_options(_), do: %{}
+
   defp extract_pandoc_options(raw_option) when is_map(raw_option) do
     {_, option} = Map.pop(raw_option, "pandoc")
     option
