@@ -70,19 +70,55 @@ defmodule Greenhouse.Theme.MobileFriendly do
       |> Enum.join("\n")
 
     """
-    #{theme_toggle_button()}
-    <div class="bg-base-200 min-h-screen py-8 md:py-12">
-      <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header class="mb-10 sm:mb-12">
-          <div class="text-sm font-bold text-primary mb-2 uppercase tracking-wider">#{type}</div>
-          <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-base-content leading-tight tracking-tight">#{name}</h1>
-          <p class="mt-4 text-base-content/70">#{length(posts)} posts in this #{type}</p>
-        </header>
-
-        <div class="grid gap-6 md:gap-8">
-          #{if length(posts) > 0, do: list_items, else: "<p class=\"text-base-content/60\">No posts found.</p>"}
+    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10 border-b border-base-200">
+      <div class="navbar max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-12 sm:min-h-16">
+        <div class="flex-1">
+          <a href="/" class="btn btn-ghost text-xl px-2"><kbd class="font-mono">GES233</kbd>'s Blog</a>
         </div>
-      </main>
+        <div class="flex-none hidden sm:block">
+          <ul class="menu menu-horizontal px-1">
+            <li><a href="/about" class="font-medium">关于</a></li>
+            <li><a href="/friends" class="font-medium">友链</a></li>
+          </ul>
+        </div>
+        <div class="flex-none sm:hidden dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a href="/about">关于</a></li>
+            <li><a href="/friends">友链</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    #{theme_toggle_button()}
+    <div class="bg-base-200 min-h-screen pb-16">
+      <div class="py-8 md:py-12">
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <header class="mb-10 sm:mb-12">
+            <div class="text-sm font-bold text-primary mb-2 uppercase tracking-wider">#{type}</div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-base-content leading-tight tracking-tight">#{name}</h1>
+            <p class="mt-4 text-base-content/70">#{length(posts)} posts in this #{type}</p>
+          </header>
+
+          <div class="grid gap-6 md:gap-8">
+            #{if length(posts) > 0, do: list_items, else: "<p class=\"text-base-content/60\">No posts found.</p>"}
+          </div>
+        </main>
+      </div>
+
+      <footer class="mt-8 py-8 border-t border-base-300">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm text-base-content/70 font-serif">
+            (c) #{DateTime.utc_now().year} GES233
+          </p>
+          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
+            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>Greenhouse</code></a>
+          </p>
+        </div>
+      </footer>
     </div>
     """
   end
@@ -154,6 +190,25 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
     """
     #{theme_toggle_button()}
+    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10">
+      <div class="navbar bg-base-100 shadow-sm px-4 sm:px-6 lg:px-8">
+        <div class="flex-1">
+          <a  href="/" class="btn btn-ghost text-xl"><kbd>GES233</kbd>'s Blog</a>
+        </div>
+        <ul class="menu menu-horizontal px-1">
+        <li>
+          <details>
+            <summary>欢迎</summary>
+            <ul class="bg-base-100 rounded-t-none p-2">
+              <li><a href="/about">关于</a></li>
+              <li><a href="/friends">友链</a></li>
+              <li></li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+      </div>
+    </header>
     <div class="min-h-screen">
       <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <article class="bg-base-100 rounded-xl shadow-sm p-6 sm:p-8 md:p-12">
@@ -179,6 +234,16 @@ defmodule Greenhouse.Theme.MobileFriendly do
           </div>
         </article>
       </main>
+      <footer class="mt-16 border-t py-8">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm text-base-content">
+          (c) #{DateTime.utc_now().year} GES233
+        </p>
+        <p class="text-center text-sm text-base-content">
+          Powered by <a href="https://github.com/GES233/simple_blog_engine"><code>GES233/simple_blog_engine</code></a>
+        </p>
+      </div>
+    </footer>
     </div>
     """
   end
@@ -188,11 +253,11 @@ defmodule Greenhouse.Theme.MobileFriendly do
       cats = categories
         |> Enum.reject(&(&1 == []))
         |> Enum.map(fn
-          cat_path when is_list(cat_path) -> 
+          cat_path when is_list(cat_path) ->
             link = Greenhouse.Cite.Link.convert({:category, cat_path})
             name = Enum.join(cat_path, " / ")
             "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
-          cat -> 
+          cat ->
             link = Greenhouse.Cite.Link.convert({:category, cat})
             name = to_string(cat)
             "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
@@ -214,11 +279,11 @@ defmodule Greenhouse.Theme.MobileFriendly do
     end
 
     tags_html = if is_list(tags) and length(tags) > 0 do
-      tags_list = tags 
-        |> Enum.map(fn tag -> 
+      tags_list = tags
+        |> Enum.map(fn tag ->
           link = Greenhouse.Cite.Link.convert({:tag, tag})
           "<a href=\"#{link}\" class=\"badge badge-ghost badge-sm hover:badge-primary transition-colors\">##{tag}</a>"
-        end) 
+        end)
         |> Enum.join(" ")
       """
       <div class="flex items-center flex-wrap gap-2 mt-3">
@@ -238,7 +303,31 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
     """
     #{theme_toggle_button()}
-    <div class="bg-base-200 min-h-screen">
+    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10 border-b border-base-200">
+      <div class="navbar max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-12 sm:min-h-16">
+        <div class="flex-1">
+          <a href="/" class="btn btn-ghost text-xl px-2"><kbd class="font-mono">GES233</kbd>'s Blog</a>
+        </div>
+        <div class="flex-none hidden sm:block">
+          <ul class="menu menu-horizontal px-1">
+            <li><a href="/about" class="font-medium">关于</a></li>
+            <li><a href="/friends" class="font-medium">友链</a></li>
+          </ul>
+        </div>
+        <div class="flex-none sm:hidden dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a href="/about">关于</a></li>
+            <li><a href="/friends">友链</a></li>
+            <li></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <div class="bg-base-200 min-h-screen pb-16">
       <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <article class="bg-base-100 rounded-xl shadow-sm p-6 sm:p-8 md:p-12">
           <header class="mb-8 md:mb-12 border-b border-base-300 pb-6 md:pb-8">
@@ -249,12 +338,24 @@ defmodule Greenhouse.Theme.MobileFriendly do
                       prose-headings:font-bold
                       prose-a:no-underline hover:prose-a:underline">
             #{render_toc(page)}
+            #{render_friends_section(page)}
             #{html_body}
             #{render_footnotes(page)}
             #{render_bibliography(page)}
           </div>
         </article>
       </main>
+
+      <footer class="mt-8 py-8 border-t border-base-300">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm text-base-content/70 font-serif">
+            (c) #{DateTime.utc_now().year} GES233
+          </p>
+          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
+            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>Greenhouse</code></a>
+          </p>
+        </div>
+      </footer>
     </div>
     """
   end
@@ -277,15 +378,51 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
     """
     #{theme_toggle_button()}
-    <div class="bg-base-200 min-h-screen py-8 md:py-12">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header class="mb-10 sm:mb-12">
-          <h1 class="text-3xl sm:text-4xl font-extrabold text-base-content">Recent Posts</h1>
-        </header>
-        <div class="grid gap-6 md:gap-8">
-          #{list_items}
+    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10 border-b border-base-200">
+      <div class="navbar max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-12 sm:min-h-16">
+        <div class="flex-1">
+          <a href="/" class="btn btn-ghost text-xl px-2"><kbd class="font-mono">GES233</kbd>'s Blog</a>
+        </div>
+        <div class="flex-none hidden sm:block">
+          <ul class="menu menu-horizontal px-1">
+            <li><a href="/about" class="font-medium">关于</a></li>
+            <li><a href="/friends" class="font-medium">友链</a></li>
+          </ul>
+        </div>
+        <div class="flex-none sm:hidden dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a href="/about">关于</a></li>
+            <li><a href="/friends">友链</a></li>
+          </ul>
         </div>
       </div>
+    </header>
+
+    <div class="bg-base-200 min-h-screen pb-16">
+      <div class="py-8 md:py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <header class="mb-10 sm:mb-12">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-base-content">Recent Posts</h1>
+          </header>
+          <div class="grid gap-6 md:gap-8">
+            #{list_items}
+          </div>
+        </div>
+      </div>
+
+      <footer class="mt-8 py-8 border-t border-base-300">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm text-base-content/70 font-serif">
+            (c) #{DateTime.utc_now().year} GES233
+          </p>
+          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
+            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>Greenhouse</code></a>
+          </p>
+        </div>
+      </footer>
     </div>
     """
   end
@@ -297,6 +434,81 @@ defmodule Greenhouse.Theme.MobileFriendly do
       doc -> Map.get(doc, :body, item.content)
     end
   end
+
+  defp render_friends_section(%Page{extra: %{friends: friends}}) when is_list(friends) do
+    friends_html =
+      friends
+      |> Enum.map(fn friend ->
+        # The map may use struct GES233.Blog.Page.Friend, handle it properly
+        friend_map = if is_struct(friend), do: Map.from_struct(friend), else: friend
+
+        name = Map.get(friend_map, :name) || Map.get(friend_map, "name", "Unknown")
+        avatar = Map.get(friend_map, :avatar) || Map.get(friend_map, "avatar")
+        site = Map.get(friend_map, :site) || Map.get(friend_map, "site")
+        desp = Map.get(friend_map, :desp) || Map.get(friend_map, "desp")
+        status = Map.get(friend_map, :status) || Map.get(friend_map, "status", :normal)
+        status_str = to_string(status)
+
+        avatar_html = if avatar do
+          "<figure class=\"h-full\"><img src=\"#{avatar}\" alt=\"#{name}\" class=\"w-full h-full object-cover m-0\" /></figure>"
+        else
+          ""
+        end
+
+        desp_html = if desp do
+          "<p class=\"text-base-content/70 text-sm mt-2 mb-0 leading-snug line-clamp-2\">#{desp}</p>"
+        else
+          ""
+        end
+
+        button_html = cond do
+          site && String.contains?(site, "ges233") ->
+            """
+            <button disabled="disabled" class="btn btn-dash btn-secondary btn-sm h-10 px-4">
+              <span class="w-2 h-2 rounded-full bg-success mr-2"></span>
+              就是这儿！
+            </button>
+            """
+          site ->
+            status_indicator = if status_str == "normal" do
+              "<span class=\"w-2 h-2 rounded-full bg-success mr-2\"></span>"
+            else
+              "<span class=\"w-2 h-2 rounded-full bg-error mr-2\"></span>"
+            end
+
+            """
+            <a href="#{site}" target="_blank" rel="noopener" class="btn btn-outline btn-primary btn-sm h-10 px-4">
+              #{status_indicator}
+              让我访问！
+            </a>
+            """
+          true -> ""
+        end
+
+        """
+        <div class="card lg:card-side bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-200 overflow-hidden h-full flex flex-col lg:flex-row">
+          #{if avatar, do: "<div class=\"w-full lg:w-48 h-48 lg:h-full shrink-0\">#{avatar_html}</div>", else: ""}
+          <div class="card-body p-6 flex flex-col justify-between">
+            <div>
+              <h2 class="card-title text-xl mb-1 mt-0">#{name}</h2>
+              #{desp_html}
+            </div>
+            <div class="card-actions justify-end mt-4">
+              #{button_html}
+            </div>
+          </div>
+        </div>
+        """
+      end)
+      |> Enum.join("\n")
+
+    """
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-8 not-prose">
+      #{friends_html}
+    </div>
+    """
+  end
+  defp render_friends_section(_), do: ""
 
   defp render_toc(%{doc_struct: %{toc: toc}}) when is_binary(toc) and toc != "", do: "<nav class=\"toc mb-8 p-4 bg-base-200 rounded-lg\">#{toc}</nav>"
   defp render_toc(_), do: ""

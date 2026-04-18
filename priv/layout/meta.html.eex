@@ -7,6 +7,7 @@
   <%= if Map.get(@options, "pdf") do %>
   <% end %>
   <%= if Map.get(@options, "music") do %>
+    <script src="/assets/abcjs-plugin-min.js" type="text/javascript"></script>
   <% end %>
   <%= if Map.get(@options, "calendar") do %>
     <!-- https://fullcalendar.io/docs/initialize-browser-esm -->
@@ -18,7 +19,7 @@
         }
       }
     </script>
-    <script type='module' src='/assets/calendar.js'></script>
+    <script type='module' src='/assets/fullcalendar.js'></script>
   <% end %>
 <% end %>
 <%= @maybe_extra %>

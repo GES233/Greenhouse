@@ -15,6 +15,14 @@ defmodule Greenhouse.Cite.Link do
     end
   end
 
+  def convert(%Media{type: Greenhouse.Asset.Media.PDF} = media) do
+    route = media.route_path
+    case route do
+      route when is_binary(route) -> "<div class=\"aspect-ratio\"><iframe src=\"/dist/pdf_js/web/viewer.html?file=#{@root}#{route}\"></iframe></div>"
+      nil -> ""
+    end
+  end
+
   def convert(%Media{} = media) do
     route = media.route_path
 

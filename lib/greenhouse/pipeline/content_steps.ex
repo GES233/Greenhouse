@@ -64,12 +64,12 @@ defmodule Greenhouse.Pipeline.ContentSteps do
       type: :string,
       default: "about.md",
       doc: ""
+    ],
+    friends: [
+      type: :string,
+      default: "friends.md",
+      doc: ""
     ]
-    # friends: [
-    #   type: :string,
-    #   default: "friends.md",
-    #   doc: ""
-    # ]
   ]
 
   def load_pages(root_path, step_options) do
@@ -89,9 +89,9 @@ defmodule Greenhouse.Pipeline.ContentSteps do
          |> NimbleOptions.validate(@paths_schema) do
       {:ok, opts} ->
         about_location = Path.join(root_path, opts[:about])
-        # friends_location = Path.join(root_path, opts[:friends])
+        friends_location = Path.join(root_path, opts[:friends])
 
-        %{about: about_location}
+        %{about: about_location, friends: friends_location}
 
       error ->
         error
