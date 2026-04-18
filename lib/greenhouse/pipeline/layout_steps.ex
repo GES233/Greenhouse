@@ -44,7 +44,7 @@ defmodule Greenhouse.Pipeline.LayoutSteps do
          |> String.trim_leading("/")
          |> then(fn
            "" -> "index.html"
-           path -> "#{path}.html"
+           path -> "#{path}/index.html"
          end)
 
        path = Path.join(output_dir, rel_path)

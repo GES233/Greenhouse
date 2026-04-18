@@ -17,8 +17,10 @@ defmodule Greenhouse.Pipeline.Recipe do
          :pages_map_with_doc_struct},
         {Greenhouse.Pipeline.TaxonomyStep, :posts_map,
          [:tags_posts_mapper, :series_posts_mapper, :categories_posts_mapper]},
-        {Greenhouse.Pipeline.LayoutSteps, :posts_map_with_doc_struct, :post_ids},
-        {Greenhouse.Pipeline.LayoutSteps, :pages_map_with_doc_struct, :page_ids},
+        {Greenhouse.Pipeline.LayoutSteps, :posts_map_with_doc_struct, :post_ids,
+         theme: Greenhouse.Theme.MobileFriendly},
+        {Greenhouse.Pipeline.LayoutSteps, :pages_map_with_doc_struct, :page_ids,
+         theme: Greenhouse.Theme.MobileFriendly}
       ],
       name: :build
     )
