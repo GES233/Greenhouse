@@ -24,8 +24,7 @@ defmodule Greenhouse.Theme.Default do
     page_assigns =
       assigns
       |> Map.put(:page_title, page.title || "Page")
-      # Add any page-specific meta
-      |> Map.put(:meta, "")
+      |> Map.put(:meta, render_meta(page))
       |> Map.put(:inner_content, render_page_content(page))
 
     View.scaffold(page_assigns)
@@ -55,9 +54,11 @@ defmodule Greenhouse.Theme.Default do
 
   # Internal renderers - these could be extracted to EEx templates in priv/layout
 
-  defp render_meta(%Post{} = _post) do
-    # Render specific meta tags for a post (e.g. description, author)
-    ~s(<meta name="description" content="A blog post">)
+  defp render_meta(post_or_page) do
+    # Extract pandoc options from extra metadata if available
+    options = Greenhouse.Layout.Components.get_options(post_or_page) || %{}
+
+    View.meta(%{options: options, maybe_extra: ""})
   end
 
   defp render_post_content(%Post{} = post) do
