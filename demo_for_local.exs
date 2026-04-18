@@ -9,6 +9,9 @@ bib_entry = Path.join(root_path, "_bibs")
 
 import Orchid.ParamFactory
 
+# Enable pushing to remote GitHub Pages
+Application.put_env(:greenhouse, :push_deploy, true)
+
 # Run
 res = Orchid.run(Greenhouse.Pipeline.Recipe.build(), [
   to_param(page_root_path, :path),
