@@ -27,7 +27,7 @@ defmodule Greenhouse.Cite.Link do
     route = media.route_path
 
     case route do
-      route when is_binary(route) -> "#{@root}#{route}"
+      route when is_binary(route) -> "#{@root}#{route}" |> String.replace("//", "/")
       # When filaed => inject raw file(some compile scene)
       nil -> ""
     end
@@ -52,7 +52,7 @@ defmodule Greenhouse.Cite.Link do
 
   defp sanitize_name(name) when is_list(name), do: Enum.join(name, "-") |> sanitize_string()
   defp sanitize_name(name), do: to_string(name) |> sanitize_string()
-  
+
   # Allow chinese characters
   defp sanitize_string(str) do
     # Only replace spaces and actual special characters, keep unicode (like Chinese)
