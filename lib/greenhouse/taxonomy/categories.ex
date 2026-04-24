@@ -85,7 +85,7 @@ defmodule Greenhouse.Taxonomy.Categories do
 
         [existing | _] when is_struct(existing, Node) ->
           # 更新已有节点的 posts
-          %{existing | posts: [post_id | existing.posts]}
+          %{existing | posts: Enum.uniq([post_id | existing.posts])}
       end
 
     # 如果还有剩余路径，继续递归
@@ -102,7 +102,7 @@ defmodule Greenhouse.Taxonomy.Categories do
 
   defp insert_category(%Node{} = node, [], post_id, _depth) do
     # 没有分类路径时，将文章放入当前节点
-    %Node{node | posts: [post_id | node.posts]}
+    %Node{node | posts: Enum.uniq([post_id | node.posts])}
   end
 
   # def add_posts
