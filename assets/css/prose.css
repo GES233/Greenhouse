@@ -91,7 +91,7 @@
       @apply border border-slate-300 px-3 py-2;
     }
     th {
-      @apply bg-slate-100 font-semibold;
+      @apply bg-secondary font-semibold;
     }
 
     /* 标题改为 sans-serif */

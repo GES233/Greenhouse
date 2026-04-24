@@ -46,8 +46,9 @@ defmodule Greenhouse.Pipeline.DeployStep do
     output_dir = opts[:output_dir] |> Path.absname()
     deploy_dir = opts[:deploy_dir] |> Path.absname()
     push_to_remote? = opts[:push]
-    
-    commit_message = opts[:commit_message] || "Site updated on #{DateTime.utc_now() |> DateTime.to_iso8601()}"
+
+    commit_message =
+      opts[:commit_message] || "Site updated on #{DateTime.utc_now() |> DateTime.to_iso8601()}"
 
     if push_to_remote? do
       repo = setup_repo(git_url, git_branch, deploy_dir)
@@ -68,18 +69,19 @@ defmodule Greenhouse.Pipeline.DeployStep do
     else
       Logger.info("Cloning deploy repository to #{deploy_dir}")
       File.rm_rf!(deploy_dir)
-      
+
       repo = Git.clone!([git_url, deploy_dir])
-      
+
       # Checkout or create the branch
       case Git.checkout(repo, [git_branch]) do
-        {:ok, _} -> 
+        {:ok, _} ->
           Logger.info("Checked out branch #{git_branch}")
-        {:error, _} -> 
+
+        {:error, _} ->
           Logger.info("Creating new branch #{git_branch}")
           Git.checkout(repo, ["-b", git_branch])
       end
-      
+
       repo
     end
   end
@@ -90,23 +92,23 @@ defmodule Greenhouse.Pipeline.DeployStep do
 
   defp copy_build_files(source_dir, target_dir) do
     Logger.info("Copying built files from #{source_dir} to #{target_dir}")
-    
+
     # Clean the target directory first (excluding .git)
     if File.exists?(target_dir) do
       File.ls!(target_dir)
       |> Enum.reject(&(&1 == ".git"))
-      |> Enum.each(fn item -> 
-        File.rm_rf!(Path.join(target_dir, item)) 
+      |> Enum.each(fn item ->
+        File.rm_rf!(Path.join(target_dir, item))
       end)
     end
 
     # Copy files recursively
     files = list_all_files(source_dir)
-    
+
     Enum.each(files, fn file ->
       relative_path = Path.relative_to(file, source_dir)
       target_file = Path.join(target_dir, relative_path)
-      
+
       File.mkdir_p!(Path.dirname(target_file))
       File.copy!(file, target_file)
     end)
@@ -130,15 +132,17 @@ defmodule Greenhouse.Pipeline.DeployStep do
 
   defp commit_and_push(repo, message) do
     Git.add(repo, ["."])
-    
+
     case Git.commit(repo, ["-m", message]) do
-      {:ok, _} -> 
+      {:ok, _} ->
         Logger.info("Changes committed successfully")
+
         case Git.push(repo) do
           {:ok, output} -> Logger.info("Push successful: #{output}")
           {:error, err} -> Logger.error("Push failed: #{inspect(err)}")
         end
-      {:error, err} -> 
+
+      {:error, err} ->
         # Usually means there's nothing to commit
         Logger.info("Nothing to commit or commit failed: #{inspect(err)}")
     end

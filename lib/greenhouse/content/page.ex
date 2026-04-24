@@ -1,12 +1,12 @@
 defmodule Greenhouse.Content.Page do
   @type t :: %__MODULE__{
-    id: binary(),
-    title: binary(),
-    route: any(),
-    content: binary(),
-    doc_struct: struct(),
-    extra: map()
-  }
+          id: binary(),
+          title: binary(),
+          route: any(),
+          content: binary(),
+          doc_struct: struct(),
+          extra: map()
+        }
   defstruct [:id, :title, :route, :content, :doc_struct, :extra]
 
   def from_file_doc(file_doc, route) do

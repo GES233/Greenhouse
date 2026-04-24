@@ -58,6 +58,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
       posts
       |> Enum.map(fn post ->
         link = Greenhouse.Cite.Link.convert(post)
+
         """
         <article class="bg-base-100 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
           <a href="#{link}" class="block p-6 sm:p-8">
@@ -129,9 +130,11 @@ defmodule Greenhouse.Theme.MobileFriendly do
     # We can also inject Tailwind via CDN for styling purposes, but ideally it should be processed.
     # For now, adding Tailwind CDN to the meta block so classes take effect.
     meta_html = View.meta(%{options: options, maybe_extra: ""})
+
     tailwind_cdn = """
     <link rel="stylesheet" href="/assets/app.css">
     """
+
     viewport_meta = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
 
     # We combine them if not already in scaffold
@@ -176,17 +179,29 @@ defmodule Greenhouse.Theme.MobileFriendly do
     html_body = extract_body(post)
 
     # Convert progress atom or list to a friendly string
-    progress_label = case post.progress do
-      [state, progress_num] when is_atom(state) and is_integer(progress_num) ->
-        "#{format_state(state)} (#{progress_num}%)"
-      [state | _] when is_atom(state) ->
-        format_state(state)
-      :wip -> "Work in Progress"
-      :draft -> "Draft"
-      :review -> "Needs Review"
-      :final -> "Final"
-      other -> String.capitalize(to_string(other))
-    end
+    progress_label =
+      case post.progress do
+        [state, progress_num] when is_atom(state) and is_integer(progress_num) ->
+          "#{format_state(state)} (#{progress_num}%)"
+
+        [state | _] when is_atom(state) ->
+          format_state(state)
+
+        :wip ->
+          "Work in Progress"
+
+        :draft ->
+          "Draft"
+
+        :review ->
+          "Needs Review"
+
+        :final ->
+          "Final"
+
+        other ->
+          String.capitalize(to_string(other))
+      end
 
     """
     #{theme_toggle_button()}
@@ -234,66 +249,66 @@ defmodule Greenhouse.Theme.MobileFriendly do
           </div>
         </article>
       </main>
-      <footer class="mt-16 border-t py-8">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-sm text-base-content">
-          (c) #{DateTime.utc_now().year} GES233
-        </p>
-        <p class="text-center text-sm text-base-content">
-          Powered by <a href="https://github.com/GES233/simple_blog_engine"><code>GES233/simple_blog_engine</code></a>
-        </p>
-      </div>
-    </footer>
+      #{footer()}
     </div>
     """
   end
 
   defp render_post_taxonomies(%Post{index_view: %{tags: tags, categories: categories}}) do
-    categories_html = if is_list(categories) and length(categories) > 0 do
-      cats = categories
-        |> Enum.reject(&(&1 == []))
-        |> Enum.map(fn
-          cat_path when is_list(cat_path) ->
-            link = Greenhouse.Cite.Link.convert({:category, cat_path})
-            name = Enum.join(cat_path, " / ")
-            "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
-          cat ->
-            link = Greenhouse.Cite.Link.convert({:category, cat})
-            name = to_string(cat)
-            "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
-        end)
-        |> Enum.join("<span class=\"mx-2 text-base-content/40\">•</span>")
+    categories_html =
+      if is_list(categories) and length(categories) > 0 do
+        cats =
+          categories
+          |> Enum.reject(&(&1 == []))
+          |> Enum.map(fn
+            cat_path when is_list(cat_path) ->
+              link = Greenhouse.Cite.Link.convert({:category, cat_path})
+              name = Enum.join(cat_path, " / ")
 
-      if cats != "" do
+              "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
+
+            cat ->
+              link = Greenhouse.Cite.Link.convert({:category, cat})
+              name = to_string(cat)
+
+              "<a href=\"#{link}\" class=\"text-primary hover:underline cursor-pointer\">#{name}</a>"
+          end)
+          |> Enum.join("<span class=\"mx-2 text-base-content/40\">•</span>")
+
+        if cats != "" do
+          """
+          <div class="flex items-center flex-wrap text-sm gap-2 mt-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-base-content/60"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
+            #{cats}
+          </div>
+          """
+        else
+          ""
+        end
+      else
+        ""
+      end
+
+    tags_html =
+      if is_list(tags) and length(tags) > 0 do
+        tags_list =
+          tags
+          |> Enum.map(fn tag ->
+            link = Greenhouse.Cite.Link.convert({:tag, tag})
+
+            "<a href=\"#{link}\" class=\"badge badge-ghost badge-sm hover:badge-primary transition-colors\">##{tag}</a>"
+          end)
+          |> Enum.join(" ")
+
         """
-        <div class="flex items-center flex-wrap text-sm gap-2 mt-2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-base-content/60"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
-          #{cats}
+        <div class="flex items-center flex-wrap gap-2 mt-3">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-base-content/60"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>
+          #{tags_list}
         </div>
         """
       else
         ""
       end
-    else
-      ""
-    end
-
-    tags_html = if is_list(tags) and length(tags) > 0 do
-      tags_list = tags
-        |> Enum.map(fn tag ->
-          link = Greenhouse.Cite.Link.convert({:tag, tag})
-          "<a href=\"#{link}\" class=\"badge badge-ghost badge-sm hover:badge-primary transition-colors\">##{tag}</a>"
-        end)
-        |> Enum.join(" ")
-      """
-      <div class="flex items-center flex-wrap gap-2 mt-3">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-base-content/60"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /></svg>
-        #{tags_list}
-      </div>
-      """
-    else
-      ""
-    end
 
     categories_html <> tags_html
   end
@@ -346,16 +361,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
         </article>
       </main>
 
-      <footer class="mt-8 py-8 border-t border-base-300">
-        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <p class="text-center text-sm text-base-content/70 font-serif">
-            (c) #{DateTime.utc_now().year} GES233
-          </p>
-          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
-            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>Greenhouse</code></a>
-          </p>
-        </div>
-      </footer>
+      #{footer()}
     </div>
     """
   end
@@ -365,6 +371,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
       posts
       |> Enum.map(fn post ->
         link = Greenhouse.Cite.Link.convert(post)
+
         """
         <article class="bg-base-100 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
           <a href="#{link}" class="block p-6 sm:p-8">
@@ -413,16 +420,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
         </div>
       </div>
 
-      <footer class="mt-8 py-8 border-t border-base-300">
-        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <p class="text-center text-sm text-base-content/70 font-serif">
-            (c) #{DateTime.utc_now().year} GES233
-          </p>
-          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
-            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>Greenhouse</code></a>
-          </p>
-        </div>
-      </footer>
+      #{footer()}
     </div>
     """
   end
@@ -449,41 +447,48 @@ defmodule Greenhouse.Theme.MobileFriendly do
         status = Map.get(friend_map, :status) || Map.get(friend_map, "status", :normal)
         status_str = to_string(status)
 
-        avatar_html = if avatar do
-          "<figure class=\"h-full\"><img src=\"#{avatar}\" alt=\"#{name}\" class=\"w-full h-full object-cover m-0\" /></figure>"
-        else
-          ""
-        end
+        avatar_html =
+          if avatar do
+            "<figure class=\"h-full\"><img src=\"#{avatar}\" alt=\"#{name}\" class=\"w-full h-full object-cover m-0\" /></figure>"
+          else
+            ""
+          end
 
-        desp_html = if desp do
-          "<p class=\"text-base-content/70 text-sm mt-2 mb-0 leading-snug line-clamp-2\">#{desp}</p>"
-        else
-          ""
-        end
+        desp_html =
+          if desp do
+            "<p class=\"text-base-content/70 text-sm mt-2 mb-0 leading-snug line-clamp-2\">#{desp}</p>"
+          else
+            ""
+          end
 
-        button_html = cond do
-          site && String.contains?(site, "ges233") ->
-            """
-            <button disabled="disabled" class="btn btn-dash btn-secondary btn-sm h-10 px-4">
-              <span class="w-2 h-2 rounded-full bg-success mr-2"></span>
-              就是这儿！
-            </button>
-            """
-          site ->
-            status_indicator = if status_str == "normal" do
-              "<span class=\"w-2 h-2 rounded-full bg-success mr-2\"></span>"
-            else
-              "<span class=\"w-2 h-2 rounded-full bg-error mr-2\"></span>"
-            end
+        button_html =
+          cond do
+            site && String.contains?(site, "ges233") ->
+              """
+              <button disabled="disabled" class="btn btn-dash btn-secondary btn-sm h-10 px-4">
+                <span class="w-2 h-2 rounded-full bg-success mr-2"></span>
+                就是这儿！
+              </button>
+              """
 
-            """
-            <a href="#{site}" target="_blank" rel="noopener" class="btn btn-outline btn-primary btn-sm h-10 px-4">
-              #{status_indicator}
-              让我访问！
-            </a>
-            """
-          true -> ""
-        end
+            site ->
+              status_indicator =
+                if status_str == "normal" do
+                  "<span class=\"w-2 h-2 rounded-full bg-success mr-2\"></span>"
+                else
+                  "<span class=\"w-2 h-2 rounded-full bg-error mr-2\"></span>"
+                end
+
+              """
+              <a href="#{site}" target="_blank" rel="noopener" class="btn btn-outline btn-primary btn-sm h-10 px-4">
+                #{status_indicator}
+                让我访问！
+              </a>
+              """
+
+            true ->
+              ""
+          end
 
         """
         <div class="card lg:card-side bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-base-200 overflow-hidden h-full flex flex-col lg:flex-row">
@@ -508,12 +513,16 @@ defmodule Greenhouse.Theme.MobileFriendly do
     </div>
     """
   end
+
   defp render_friends_section(_), do: ""
 
-  defp render_toc(%{doc_struct: %{toc: toc}}) when is_binary(toc) and toc != "", do: "<nav class=\"toc mb-8 p-4 bg-base-200 rounded-lg\">#{toc}</nav>"
+  defp render_toc(%{doc_struct: %{toc: toc}}) when is_binary(toc) and toc != "",
+    do: "<nav class=\"toc mb-8 p-4 bg-base-200 rounded-lg\">#{toc}</nav>"
+
   defp render_toc(_), do: ""
 
-  defp render_footnotes(%{doc_struct: %{footnotes: footnotes}}) when is_binary(footnotes) and footnotes != "" do
+  defp render_footnotes(%{doc_struct: %{footnotes: footnotes}})
+       when is_binary(footnotes) and footnotes != "" do
     """
     <div class="footnotes mt-12 pt-8 border-t border-base-300">
       <h3 class="text-xl font-bold mb-4">Footnotes</h3>
@@ -521,9 +530,11 @@ defmodule Greenhouse.Theme.MobileFriendly do
     </div>
     """
   end
+
   defp render_footnotes(_), do: ""
 
-  defp render_bibliography(%{doc_struct: %{bibliography: bib}}) when is_binary(bib) and bib != "" do
+  defp render_bibliography(%{doc_struct: %{bibliography: bib}})
+       when is_binary(bib) and bib != "" do
     """
     <div class="bibliography mt-12 pt-8 border-t border-base-300">
       <h3 class="text-xl font-bold mb-4">References</h3>
@@ -531,6 +542,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
     </div>
     """
   end
+
   defp render_bibliography(_), do: ""
 
   defp format_state(:wip), do: "Work in Progress"
@@ -538,4 +550,19 @@ defmodule Greenhouse.Theme.MobileFriendly do
   defp format_state(:longterm), do: "Long Term"
   defp format_state(:blocking), do: "Blocked"
   defp format_state(state), do: String.capitalize(to_string(state))
+
+  defp footer do
+    """
+    <footer class="mt-8 py-8 border-t border-base-300">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <p class="text-center text-sm text-base-content/70 font-serif">
+            (c) #{DateTime.utc_now().year} GES233
+          </p>
+          <p class="text-center text-sm text-base-content/70 font-serif mt-2">
+            Powered by <a href="https://github.com/GES233/Greenhouse" class="hover:text-primary transition-colors"><code>GES233/Greenhouse</code></a>
+          </p>
+        </div>
+      </footer>
+    """
+  end
 end

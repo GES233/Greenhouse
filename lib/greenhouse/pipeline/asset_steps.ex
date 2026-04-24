@@ -26,7 +26,10 @@ defmodule Greenhouse.Pipeline.AssetSteps do
     File.mkdir_p!(Path.dirname(output))
 
     # Run the tailwind command
-    {_output, 0} = System.cmd("mix", ["tailwind", "default", "--input=#{source}", "--output=#{output}"], env: [{"MIX_ENV", "dev"}])
+    {_output, 0} =
+      System.cmd("mix", ["tailwind", "default", "--input=#{source}", "--output=#{output}"],
+        env: [{"MIX_ENV", "dev"}]
+      )
 
     copy_static_assets()
 
@@ -41,22 +44,24 @@ defmodule Greenhouse.Pipeline.AssetSteps do
 
     if File.exists?("assets/vendor") do
       File.mkdir_p!("exports/assets")
-      
+
       vendor_files = ["fullcalendar.js", "daisyui.js", "daisyui-theme.js", "heroicons.js"]
+
       Enum.each(vendor_files, fn file ->
         source = Path.join("assets/vendor", file)
         target = Path.join("exports/assets", file)
+
         if File.exists?(source) do
           File.cp!(source, target)
         end
       end)
     end
-    
+
     if File.exists?("assets/vendor/pdf_js") do
       File.mkdir_p!("exports/dist")
       File.cp_r!("assets/vendor/pdf_js", "exports/dist/pdf_js")
     end
-    
+
     if File.exists?("assets/vendor/abcjs") do
       File.mkdir_p!("exports/assets")
       File.cp_r!("assets/vendor/abcjs", "exports/assets/abcjs")
