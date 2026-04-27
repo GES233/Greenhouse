@@ -86,6 +86,7 @@
     }
 
     span.bu /* BuiltIn */ {
+      /* 颜色在深色背景下和背景冲突。 */
       color: #7f8c8d;
     }
 
