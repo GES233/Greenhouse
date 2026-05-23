@@ -36,7 +36,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
       assigns
       |> Map.put(:page_title, Map.get(assigns, :site_name, "Home"))
       |> Map.put(:meta, render_meta(nil))
-      |> Map.put(:inner_content, render_post_list(posts))
+      |> Map.put(:inner_content, render_post_list(posts, assigns))
 
     View.scaffold(page_assigns)
   end
@@ -366,7 +366,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
     """
   end
 
-  defp render_post_list(posts) do
+  defp render_post_list(posts, assigns) do
     list_items =
       posts
       |> Enum.map(fn post ->
@@ -382,6 +382,8 @@ defmodule Greenhouse.Theme.MobileFriendly do
         """
       end)
       |> Enum.join("\n")
+
+    pagination_nav = render_pagination(assigns)
 
     """
     #{theme_toggle_button()}
@@ -417,12 +419,42 @@ defmodule Greenhouse.Theme.MobileFriendly do
           <div class="grid gap-6 md:gap-8">
             #{list_items}
           </div>
+          #{pagination_nav}
         </div>
       </div>
 
       #{footer()}
     </div>
     """
+  end
+
+  defp render_pagination(assigns) do
+    page = Map.get(assigns, :page)
+    total_pages = Map.get(assigns, :total_pages)
+
+    if page && total_pages && total_pages > 1 do
+      prev_btn = if page > 1, do: pagination_btn(:prev, page - 1), else: ""
+      next_btn = if page < total_pages, do: pagination_btn(:next, page + 1), else: ""
+
+      """
+      <div class="flex justify-center items-center gap-4 mt-10 pt-6 border-t border-base-300">
+        #{prev_btn}
+        <span class="text-sm text-base-content/60">#{page} / #{total_pages}</span>
+        #{next_btn}
+      </div>
+      """
+    else
+      ""
+    end
+  end
+
+  defp pagination_btn(:prev, n) do
+    href = if n == 1, do: "/", else: "/page/#{n}/"
+    "<a href=\"#{href}\" class=\"btn btn-sm btn-ghost\">&larr; Newer</a>"
+  end
+
+  defp pagination_btn(:next, n) do
+    "<a href=\"/page/#{n}/\" class=\"btn btn-sm btn-ghost\">Older &rarr;</a>"
   end
 
   defp extract_body(item) do

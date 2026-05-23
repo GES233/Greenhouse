@@ -35,6 +35,10 @@ defmodule Greenhouse.MixProject do
       {:phoenix_html, "~> 4.3"},
       {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
 
+      # Dev server
+      {:plug_cowboy, "~> 2.7"},
+      {:file_system, "~> 1.1"},
+
       # Git
       {:git_cli, "~> 0.3.0"}
     ]

@@ -10,5 +10,15 @@
   </head>
   <body>
     <%= @inner_content %>
+    <%= if Mix.env() == :dev do %>
+    <script>
+      (function() {
+        var es = new EventSource("/sse");
+        es.addEventListener("reload", function(e) {
+          window.location.reload();
+        });
+      })();
+    </script>
+    <% end %>
   </body>
 </html>

@@ -9,7 +9,6 @@ defmodule Greenhouse.Theme.Default do
 
   @impl true
   def render_post(%Post{} = post, assigns) do
-    # You can merge global assigns with post-specific ones
     page_assigns =
       assigns
       |> Map.put(:page_title, post.title)
@@ -36,7 +35,7 @@ defmodule Greenhouse.Theme.Default do
       assigns
       |> Map.put(:page_title, Map.get(assigns, :site_name, "Home"))
       |> Map.put(:meta, "")
-      |> Map.put(:inner_content, render_post_list(posts))
+      |> Map.put(:inner_content, render_post_list(posts, assigns))
 
     View.scaffold(page_assigns)
   end
@@ -52,23 +51,17 @@ defmodule Greenhouse.Theme.Default do
     View.scaffold(page_assigns)
   end
 
-  # Internal renderers - these could be extracted to EEx templates in priv/layout
-
   defp render_meta(post_or_page) do
-    # Extract pandoc options from extra metadata if available
     options = Greenhouse.Layout.Components.get_options(post_or_page) || %{}
 
     View.meta(%{options: options, maybe_extra: ""})
   end
 
   defp render_post_content(%Post{} = post) do
-    # Assuming post.doc_struct is a Pandox.Doc struct and we want its HTML body
-    # (adjust if it's deeply nested like post.doc_struct[:body])
     html_body =
       case post.doc_struct do
         %{body: body} when is_list(body) -> IO.iodata_to_binary(body)
         %{body: body} when is_binary(body) -> body
-        # Fallback if structure is different
         doc -> Map.get(doc, :body, post.content)
       end
 
@@ -107,7 +100,7 @@ defmodule Greenhouse.Theme.Default do
     """
   end
 
-  defp render_post_list(posts) do
+  defp render_post_list(posts, assigns) do
     list_items =
       posts
       |> Enum.map(fn post ->
@@ -120,13 +113,38 @@ defmodule Greenhouse.Theme.Default do
       end)
       |> Enum.join("\n")
 
+    pagination_nav = render_pagination(assigns)
+
     """
     <div class="container mx-auto p-4">
       <h1 class="text-3xl font-bold mb-6">Recent Posts</h1>
       <ul class="list-none p-0">
         #{list_items}
       </ul>
+      #{pagination_nav}
     </div>
     """
   end
+
+  defp render_pagination(assigns) do
+    page = Map.get(assigns, :page)
+    total_pages = Map.get(assigns, :total_pages)
+
+    if page && total_pages && total_pages > 1 do
+      prev_link = if page > 1, do: pagination_link(page - 1), else: ""
+      next_link = if page < total_pages, do: pagination_link(page + 1), else: ""
+
+      """
+      <nav class="flex justify-center gap-4 mt-8 pt-4 border-t">
+        <span class="text-gray-400 text-sm">Page #{page} / #{total_pages}</span>
+        #{prev_link}#{next_link}
+      </nav>
+      """
+    else
+      ""
+    end
+  end
+
+  defp pagination_link(1), do: "<a href='/' class='text-blue-600 hover:underline'>Home</a>"
+  defp pagination_link(n), do: "<a href='/page/#{n}/' class='text-blue-600 hover:underline'>Page #{n}</a>"
 end

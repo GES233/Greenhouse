@@ -16,6 +16,11 @@ defmodule Greenhouse.Pipeline.IndexSteps do
       type: :string,
       default: "exports",
       doc: "Directory to write output files"
+    ],
+    page_size: [
+      type: :pos_integer,
+      default: 10,
+      doc: "Number of posts per index page"
     ]
   ]
 
@@ -32,10 +37,31 @@ defmodule Greenhouse.Pipeline.IndexSteps do
     posts_dict = Orchid.Param.get_payload(posts_map_param)
     posts = posts_dict |> Map.values() |> Enum.sort_by(& &1.created_at, {:desc, NaiveDateTime})
 
-    # 1. Render Index
-    index_html = theme_module.render_index(posts, global_assigns)
-    index_path = Path.join(output_dir, "index.html")
-    File.write!(index_path, index_html)
+    # 1. Render Index (with pagination)
+    pages = paginate(posts, opts[:page_size])
+    total_pages = length(pages)
+
+    pages
+    |> Enum.with_index(1)
+    |> Enum.each(fn {page_posts, page_num} ->
+      page_assigns =
+        Map.merge(global_assigns, %{
+          page: page_num,
+          total_pages: total_pages
+        })
+
+      html = theme_module.render_index(page_posts, page_assigns)
+
+      path =
+        if page_num == 1 do
+          Path.join(output_dir, "index.html")
+        else
+          Path.join([output_dir, "page", to_string(page_num), "index.html"])
+        end
+
+      File.mkdir_p!(Path.dirname(path))
+      File.write!(path, html)
+    end)
 
     # 2. Render Taxonomies (tags, categories, series)
     tags_posts_mapper = Orchid.Param.get_payload(tags_map)
@@ -72,6 +98,10 @@ defmodule Greenhouse.Pipeline.IndexSteps do
     {:ok, Orchid.Param.new(:index_status, :any, :ok)}
   end
 
+  defp paginate(posts, page_size) do
+    Enum.chunk_every(posts, page_size)
+  end
+
   defp render_taxonomy_map(nil, _, _, _, _, _), do: :ok
 
   defp render_taxonomy_map(
@@ -82,8 +112,6 @@ defmodule Greenhouse.Pipeline.IndexSteps do
          output_dir,
          posts_dict
        ) do
-    # For Categories, it's a tree structure, so we need to flatten it or render it recursively
-    # Here we flatten the tree into a map of {category_path_list, posts_list} to fit the existing logic
     flatten_category_tree(root_node, [])
     |> Enum.each(fn {name_path, item_ids} ->
       items =
@@ -120,7 +148,6 @@ defmodule Greenhouse.Pipeline.IndexSteps do
          %Greenhouse.Taxonomy.CategoryItem{name: name, child: children, posts: posts},
          current_path
        ) do
-    # Skip the "未归类" root node name if current_path is empty
     new_path = if name == "未归类" and current_path == [], do: [], else: current_path ++ [name]
 
     current_node_items =
