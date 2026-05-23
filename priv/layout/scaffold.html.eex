@@ -10,7 +10,7 @@
   </head>
   <body>
     <%= @inner_content %>
-    <%= if Mix.env() == :dev do %>
+    <%= unless Application.get_env(:greenhouse, :push_deploy) do %>
     <script>
       (function() {
         var es = new EventSource("/sse");
