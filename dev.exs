@@ -7,7 +7,7 @@
 IO.puts("Starting Greenhouse dev server...")
 
 # ---- Config ----
-source_root = "D:/Blog/source"
+source_root = "source"
 page_root_path = source_root
 posts_path = Path.join(source_root, "_posts")
 pic_path = Path.join(source_root, "img")

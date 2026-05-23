@@ -37,6 +37,13 @@ defmodule Greenhouse.Pipeline.AssetSteps do
   end
 
   defp copy_static_assets do
+    # Copy root-level static files from source
+    for file <- ["favicon.ico", "robots.txt"] do
+      source = Path.join("source", file)
+      target = Path.join("exports", file)
+      if File.exists?(source), do: File.copy!(source, target)
+    end
+
     if File.exists?("assets/js") do
       File.mkdir_p!("exports/assets")
       File.cp_r!("assets/js", "exports/assets")

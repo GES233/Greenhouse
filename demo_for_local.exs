@@ -1,5 +1,5 @@
 # Load
-root_path = "D:/Blog/source"
+root_path = "source"
 page_root_path = root_path
 posts_path = Path.join(root_path, "_posts")
 pic_path = Path.join(root_path, "img")

@@ -26,3 +26,6 @@ greenhouse-*.tar
 /exports/
 
 
+
+# Blog source (private sub-repo)
+source/
