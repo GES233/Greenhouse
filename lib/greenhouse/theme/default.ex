@@ -42,9 +42,16 @@ defmodule Greenhouse.Theme.Default do
 
   @impl true
   def render_taxonomy(type, name, _items, assigns) do
+    taxonomy_type = case type do
+      any ->
+        IO.inspect(any)
+
+        String.capitalize(to_string(type))
+    end
+
     page_assigns =
       assigns
-      |> Map.put(:page_title, "#{String.capitalize(to_string(type))}: #{name}")
+      |> Map.put(:page_title, "#{taxonomy_type}: #{name}")
       |> Map.put(:meta, "")
       |> Map.put(:inner_content, "<h1>#{name}</h1><p>Taxonomy rendering not yet implemented.</p>")
 

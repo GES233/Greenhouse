@@ -8,11 +8,13 @@ defmodule Greenhouse.Theme.MobileFriendly do
   alias Greenhouse.Content.{Post, Page}
   alias Greenhouse.Layout.View
 
+  @site_title "自留地"
+
   @impl true
   def render_post(%Post{} = post, assigns) do
     page_assigns =
       assigns
-      |> Map.put(:page_title, post.title)
+      |> Map.put(:page_title, post.title <> " - " <> @site_title)
       |> Map.put(:meta, render_meta(post))
       |> Map.put(:inner_content, render_post_content(post))
 
@@ -23,7 +25,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
   def render_page(%Page{} = page, assigns) do
     page_assigns =
       assigns
-      |> Map.put(:page_title, page.title || "Page")
+      |> Map.put(:page_title, @site_title <> " :: " <> (page.title || "Page"))
       |> Map.put(:meta, render_meta(page))
       |> Map.put(:inner_content, render_page_content(page))
 
@@ -34,7 +36,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
   def render_index(posts, assigns) do
     page_assigns =
       assigns
-      |> Map.put(:page_title, Map.get(assigns, :site_name, "Home"))
+      |> Map.put(:page_title, @site_title)
       |> Map.put(:meta, render_meta(nil))
       |> Map.put(:inner_content, render_post_list(posts, assigns))
 
@@ -43,9 +45,15 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
   @impl true
   def render_taxonomy(type, name, items, assigns) do
+    taxonomy_name = case type do
+      :series -> "系列文章"
+      :categories -> "类属"
+      :tags -> "标签"
+    end
+
     page_assigns =
       assigns
-      |> Map.put(:page_title, "#{String.capitalize(to_string(type))}: #{name}")
+      |> Map.put(:page_title, "#{taxonomy_name}: #{name}")
       |> Map.put(:meta, render_meta(nil))
       |> Map.put(:inner_content, render_taxonomy_content(type, name, items))
 
@@ -418,9 +426,6 @@ defmodule Greenhouse.Theme.MobileFriendly do
     <div class="bg-base-200 min-h-screen pb-16">
       <div class="py-8 md:py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <header class="mb-10 sm:mb-12">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-base-content">Recent Posts</h1>
-          </header>
           <div class="grid gap-6 md:gap-8">
             #{list_items}
           </div>

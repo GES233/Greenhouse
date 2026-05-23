@@ -19,10 +19,15 @@ defmodule Greenhouse.Content.Page do
         id: id,
         body: body,
         metadata: content_meta
-      }),
-      do: %__MODULE__{
-        id: id,
-        content: body,
-        extra: content_meta[:extra] || %{}
-      }
+      }) do
+    %__MODULE__{
+      id: id,
+      content: body,
+      title: inject_title(id),
+      extra: content_meta[:extra] || %{}
+    }
+  end
+
+  defp inject_title("about"), do: "关于"
+  defp inject_title("friends"), do: "友链"
 end
