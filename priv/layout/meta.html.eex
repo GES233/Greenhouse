@@ -14,8 +14,8 @@
     <script type='importmap'>
       {
         "imports": {
-          "@fullcalendar/core": "https://cdn.skypack.dev/@fullcalendar/core@6.1.20",
-          "@fullcalendar/daygrid": "https://cdn.skypack.dev/@fullcalendar/daygrid@6.1.20"
+          "@fullcalendar/core": "https://esm.sh/@fullcalendar/core@6.1.20",
+          "@fullcalendar/daygrid": "https://esm.sh/@fullcalendar/daygrid@6.1.20"
         }
       }
     </script>
