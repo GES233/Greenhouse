@@ -248,6 +248,9 @@ defmodule Greenhouse.Theme.MobileFriendly do
             #{render_bibliography(post)}
           </div>
         </article>
+
+        <!-- Gitalk -->
+        #{render_comment()}
       </main>
       #{footer()}
     </div>
@@ -359,6 +362,8 @@ defmodule Greenhouse.Theme.MobileFriendly do
             #{render_bibliography(page)}
           </div>
         </article>
+        <!-- Gitalk -->
+        #{render_comment()}
       </main>
 
       #{footer()}
@@ -547,6 +552,28 @@ defmodule Greenhouse.Theme.MobileFriendly do
   end
 
   defp render_friends_section(_), do: ""
+
+  defp render_comment do
+    """
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      <div id="gitalk-container" class="bg-base-100 rounded-xl shadow-sm p-6 sm:p-8"></div>
+    </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2/js/md5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+    <script>
+      new Gitalk({
+        clientID: 'Ov23li78dSQzypk6bmfu',
+        clientSecret: '8e5aae2556b97bc40f530ce57d61ad0c62544092',
+        repo: 'ges233.github.io',
+        owner: 'GES233',
+        admin: ['GES233'],
+        id: md5(location.pathname),
+        distractionFreeMode: false
+      }).render("gitalk-container")
+    </script>
+    """
+  end
 
   defp render_toc(%{doc_struct: %{toc: toc}}) when is_binary(toc) and toc != "",
     do: "<nav class=\"toc mb-8 p-4 bg-base-200 rounded-lg\">#{toc}</nav>"
