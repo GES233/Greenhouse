@@ -50,14 +50,14 @@
     padding: 0 4px;
     width: 4em;
     /* 颜色 */
-    background-color: #232629; /* 建议改为 @apply bg-gray-900 */
-    color: #7a7c7d; /* 建议改为 @apply text-gray-500 */
+    background-color: var(--color-base-300); /* 建议改为 @apply bg-gray-900 */
+    color: var(--color-base-content); opacity: 0.4;
   }
 
   /* 行号左侧的分隔线容器 */
   pre.numberSource {
     @apply ml-12 pl-1 border-l; /* ml-12 约等于 3em */
-    border-color: #7a7c7d; /* 建议改为 @apply border-gray-500 */
+    border-color: var(--color-base-content); opacity: 0.15;
   }
 
   /* 修复行号链接下划线 */
@@ -78,7 +78,7 @@
     { @apply text-warning-content font-bold decoration-warning decoration-wavy; }
 
     span.an /* Annotation */ {
-      color: #3f8058;
+      color: var(--color-success);
     }
 
     span.at /* Attribute */ {
@@ -86,8 +86,8 @@
     }
 
     span.bu /* BuiltIn */ {
-      /* 颜色在深色背景下和背景冲突。 */
-      color: #7f8c8d;
+      /* Use muted tone — safe in both light and dark */
+      color: var(--color-base-content); opacity: 0.5;
     }
 
     span.cf /* ControlFlow */,

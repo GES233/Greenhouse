@@ -61,7 +61,8 @@ defmodule Greenhouse.Monitor.DevServer do
 
   # Serve HTML files from exports/ with proper content type
   defp serve_html(%Plug.Conn{path_info: path} = conn, _opts) do
-    file_path = Path.join(["exports" | path])
+    decoded = Enum.map(path, &URI.decode/1)
+    file_path = Path.join(["exports" | decoded])
     if File.exists?(file_path) do
       conn
       |> put_resp_content_type("text/html; charset=utf-8")
