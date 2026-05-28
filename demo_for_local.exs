@@ -13,7 +13,7 @@ import Orchid.ParamFactory
 Application.put_env(:greenhouse, :push_deploy, true)
 
 # Run
-res = Orchid.run(Greenhouse.Pipeline.Recipe.build(), [
+_res = Orchid.run(Greenhouse.Pipeline.Recipe.build(), [
   to_param(page_root_path, :path),
   to_param(posts_path, :path),
   to_param(pic_path, :path),
