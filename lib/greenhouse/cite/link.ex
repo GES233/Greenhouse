@@ -27,6 +27,18 @@ defmodule Greenhouse.Cite.Link do
     end
   end
 
+  def convert(%Media{type: Greenhouse.Asset.Media.Graphviz} = media) do
+    route = media.route_path
+
+    case route do
+      route when is_binary(route) ->
+        "<img src=\"#{@root}#{route}\" alt=\"#{media.id}\" />"
+
+      nil ->
+        ""
+    end
+  end
+
   def convert(%Media{} = media) do
     route = media.route_path
 

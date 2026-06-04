@@ -1,7 +1,7 @@
 defmodule Greenhouse.Cite.ContentReplacer do
   alias Greenhouse.Cite.Link
 
-  @replaced_pattern ~r/:\{(\S+)\}/
+  @replaced_pattern ~r/\[\[([^\]]+)\]\]/
 
   def replace_posts(posts_map, pages_map, media_map) do
     maybe_resource_map =
