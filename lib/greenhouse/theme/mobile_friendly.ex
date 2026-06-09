@@ -45,11 +45,12 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
   @impl true
   def render_taxonomy(type, name, items, assigns) do
-    taxonomy_name = case type do
-      :series -> "系列文章"
-      :categories -> "类属"
-      :tags -> "标签"
-    end
+    taxonomy_name =
+      case type do
+        :series -> "系列文章"
+        :categories -> "类属"
+        :tags -> "标签"
+      end
 
     page_assigns =
       assigns
@@ -514,11 +515,15 @@ defmodule Greenhouse.Theme.MobileFriendly do
               """
 
             site ->
+              # TODO
+              # 添加其他状态
               status_indicator =
-                if status_str == "normal" do
-                  "<span class=\"w-2 h-2 rounded-full bg-success mr-2\"></span>"
-                else
-                  "<span class=\"w-2 h-2 rounded-full bg-error mr-2\"></span>"
+                cond do
+                  status_str == "normal" ->
+                    "<span class=\"w-2 h-2 rounded-full bg-success mr-2\"></span>"
+
+                  true ->
+                    "<span class=\"w-2 h-2 rounded-full bg-error mr-2\"></span>"
                 end
 
               """
