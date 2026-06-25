@@ -1,6 +1,11 @@
 defmodule Greenhouse.Pipeline.DeployStep do
-  use Orchid.Step
+  use Oi.Step, name: :deploy
   require Logger
+
+  manifest(
+    inputs: [:asset_status],
+    outputs: [deploy_status: :any]
+  )
 
   @options_schema [
     git_url: [
@@ -35,20 +40,20 @@ defmodule Greenhouse.Pipeline.DeployStep do
     ]
   ]
 
-  def run(_param, step_options) do
-    opts =
-      step_options
-      |> Orchid.Steps.Helpers.drop_orchid_native()
+  routine _asset_status, opts do
+    validated =
+      opts
+      |> Keyword.drop([:__orchid_workflow_ctx__, :__reporter_ctx__])
       |> NimbleOptions.validate!(@options_schema)
 
-    git_url = opts[:git_url]
-    git_branch = opts[:git_branch]
-    output_dir = opts[:output_dir] |> Path.absname()
-    deploy_dir = opts[:deploy_dir] |> Path.absname()
-    push_to_remote? = opts[:push]
+    git_url = validated[:git_url]
+    git_branch = validated[:git_branch]
+    output_dir = validated[:output_dir] |> Path.absname()
+    deploy_dir = validated[:deploy_dir] |> Path.absname()
+    push_to_remote? = validated[:push]
 
     commit_message =
-      opts[:commit_message] || "Site updated on #{DateTime.utc_now() |> DateTime.to_iso8601()}"
+      validated[:commit_message] || "Site updated on #{DateTime.utc_now() |> DateTime.to_iso8601()}"
 
     if push_to_remote? do
       repo = setup_repo(git_url, git_branch, deploy_dir)
@@ -59,7 +64,7 @@ defmodule Greenhouse.Pipeline.DeployStep do
       Logger.info("Skipping git push. Dry-run mode for deployment to #{git_url}")
     end
 
-    {:ok, Orchid.Param.new(:deploy_status, :any, :ok)}
+    ok(:ok)
   end
 
   defp setup_repo(git_url, git_branch, deploy_dir) do
@@ -72,7 +77,6 @@ defmodule Greenhouse.Pipeline.DeployStep do
 
       repo = Git.clone!([git_url, deploy_dir])
 
-      # Checkout or create the branch
       case Git.checkout(repo, [git_branch]) do
         {:ok, _} ->
           Logger.info("Checked out branch #{git_branch}")
@@ -93,7 +97,6 @@ defmodule Greenhouse.Pipeline.DeployStep do
   defp copy_build_files(source_dir, target_dir) do
     Logger.info("Copying built files from #{source_dir} to #{target_dir}")
 
-    # Clean the target directory first (excluding .git)
     if File.exists?(target_dir) do
       File.ls!(target_dir)
       |> Enum.reject(&(&1 == ".git"))
@@ -102,7 +105,6 @@ defmodule Greenhouse.Pipeline.DeployStep do
       end)
     end
 
-    # Copy files recursively
     files = list_all_files(source_dir)
 
     Enum.each(files, fn file ->
@@ -143,7 +145,6 @@ defmodule Greenhouse.Pipeline.DeployStep do
         end
 
       {:error, err} ->
-        # Usually means there's nothing to commit
         Logger.info("Nothing to commit or commit failed: #{inspect(err)}")
     end
   end

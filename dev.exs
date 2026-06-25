@@ -17,22 +17,24 @@ bib_entry = Path.join(source_root, "_bibs")
 
 server_port = 4000
 
-import Orchid.ParamFactory
+inputs = %{
+  "load_posts|posts_path" => posts_path,
+  "load_pages|page_root_path" => page_root_path,
+  "load_images|pic_path" => pic_path,
+  "load_pdfs|pdf_path" => pdf_path,
+  "load_dots|dot_path" => dot_path,
+  "markdown_posts|bib_entry" => bib_entry,
+  "markdown_pages|bib_entry" => bib_entry
+}
 
-params = [
-  to_param(page_root_path, :path),
-  to_param(posts_path, :path),
-  to_param(pic_path, :path),
-  to_param(pdf_path, :path),
-  to_param(dot_path, :path),
-  to_param(bib_entry, :path)
-]
-
-recipe = Greenhouse.Pipeline.Recipe.build()
+graph = Greenhouse.Pipeline.Graph.build()
 
 # ---- Initial Build ----
 IO.puts("Performing initial build...")
-case Orchid.run(recipe, params) do
+
+{:ok, compiled} = Oi.compile(graph)
+
+case Oi.execute(compiled, inputs: inputs) do
   {:ok, _} -> IO.puts("Initial build complete.")
   {:error, err} ->
     IO.puts("Initial build failed: #{inspect(err)}")
@@ -42,7 +44,7 @@ end
 # ---- Start Services ----
 children = [
   Greenhouse.Monitor.Broadcaster,
-  {Greenhouse.Monitor.Watcher, [source_root: source_root, recipe: recipe, params: params]},
+  {Greenhouse.Monitor.Watcher, [source_root: source_root, compiled: compiled, inputs: inputs]},
   {Plug.Cowboy, scheme: :http, plug: Greenhouse.Monitor.DevServer, options: [port: server_port]}
 ]
 

@@ -1,23 +1,5 @@
 defmodule Greenhouse.Media.MediaLoader do
-  alias Greenhouse.Media.MediaLoader.InnerRecipe, as: S
-
-  @spec as_declarative(generated_root_target :: Path.t() | nil) :: Orchid.Step.t()
-  def as_declarative(generated_root_target \\ nil) do
-    inner_steps = [
-      {&S.load_images/2, :pic_path, :pic_map, generated_root_target: generated_root_target},
-      {&S.load_pdfs/2, :pdf_path, :pdf_map, generated_root_target: generated_root_target},
-      {&S.load_dots/2, :dot_path, :svg_map, generated_root_target: generated_root_target},
-      # TODO: Add Lilyond(optional)
-      {&S.merger/2, [:pic_map, :svg_map, :pdf_map], :media_map}
-    ]
-
-    {
-      Orchid.Step.NestedStep,
-      [:pic_path, :dot_path, :pdf_path],
-      :media_map,
-      recipe: Orchid.Recipe.new(inner_steps)
-    }
-  end
+  @moduledoc "Media loading utilities."
 
   def wildcard(root, ext) do
     ext_part =
@@ -30,75 +12,74 @@ defmodule Greenhouse.Media.MediaLoader do
   end
 end
 
-defmodule Greenhouse.Media.MediaLoader.InnerMacro do
+defmodule Greenhouse.Media.LoadImages do
+  use Oi.Step, name: :load_images
   alias Greenhouse.Asset.Media
-  alias Greenhouse.Media.MediaLoader
 
-  defmacro def_media_loader(func_name, extensions, media_type, out_key) do
-    quote do
-      def unquote(func_name)(%Orchid.Param{payload: root_path}, opts) do
-        media_operator =
-          Keyword.get(opts, :generated_root_target, nil)
-          |> case do
-            nil -> &Media.path_to_media(&1, unquote(media_type))
-            path when is_binary(path) -> &Media.path_to_media(&1, unquote(media_type))
-          end
+  manifest(
+    inputs: [:pic_path],
+    outputs: [pic_map: :map]
+  )
 
-        root_path
-        |> MediaLoader.wildcard(unquote(extensions))
-        |> Task.async_stream(media_operator)
-        |> Enum.map(fn {:ok, media} -> {media.id, media} end)
-        |> then(&Orchid.Param.new(unquote(out_key), :map, &1))
-        |> then(&{:ok, &1})
-      end
-    end
+  routine pic_path, _opts do
+    pic_path
+    |> Greenhouse.Media.MediaLoader.wildcard(~w(png jpg jpeg gif))
+    |> Task.async_stream(&Media.path_to_media(&1, Media.Picture))
+    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
+    |> Enum.into(%{})
+    |> then(&ok(&1))
   end
 end
 
-defmodule Greenhouse.Media.MediaLoader.InnerRecipe do
+defmodule Greenhouse.Media.LoadPdfs do
+  use Oi.Step, name: :load_pdfs
   alias Greenhouse.Asset.Media
-  import Greenhouse.Media.MediaLoader.InnerMacro
 
-  @doc """
-  ### Examples
+  manifest(
+    inputs: [:pdf_path],
+    outputs: [pdf_map: :map]
+  )
 
-      Orchid.run(
-        Orchid.Recipe.new(
-          [
-            {&Greenhouse.Media.MediaLoader.InnerRecipe.load_images/2, :img_root, :img_map}
-          ]
-        ),
-        [
-          Orchid.Param.new(:img_root, :path, "D:/Blog/source/img")
-        ]
-      )
-  """
-  def_media_loader(:load_images, ~w(png jpg jpeg gif), Media.Picture, :image_maps)
-
-  @doc """
-  ### Examples
-
-      Orchid.run(
-        Orchid.Recipe.new(
-          [
-            {&Greenhouse.Media.MediaLoader.InnerRecipe.load_pdfs/2, :pdf_root, :pdf_map}
-          ]
-        ),
-        [
-          Orchid.Param.new(:pdf_root, :path, "D:/Blog/source/pdf")
-        ]
-      )
-  """
-  def_media_loader(:load_pdfs, ~w(pdf), Media.PDF, :pdf_maps)
-
-  def_media_loader(:load_dots, ~w(dot), Media.Graphviz, :dot_maps)
-
-  def merger(media_map, _opts) do
-    media_map
-    |> Enum.map(& &1.payload)
-    |> List.flatten()
+  routine pdf_path, _opts do
+    pdf_path
+    |> Greenhouse.Media.MediaLoader.wildcard(~w(pdf))
+    |> Task.async_stream(&Media.path_to_media(&1, Media.PDF))
+    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
     |> Enum.into(%{})
-    |> then(&Orchid.Param.new(:media_map, :map, &1))
-    |> then(&{:ok, &1})
+    |> then(&ok(&1))
+  end
+end
+
+defmodule Greenhouse.Media.LoadDots do
+  use Oi.Step, name: :load_dots
+  alias Greenhouse.Asset.Media
+
+  manifest(
+    inputs: [:dot_path],
+    outputs: [svg_map: :map]
+  )
+
+  routine dot_path, _opts do
+    dot_path
+    |> Greenhouse.Media.MediaLoader.wildcard(~w(dot))
+    |> Task.async_stream(&Media.path_to_media(&1, Media.Graphviz))
+    |> Enum.map(fn {:ok, media} -> {media.id, media} end)
+    |> Enum.into(%{})
+    |> then(&ok(&1))
+  end
+end
+
+defmodule Greenhouse.Media.MergeMedia do
+  use Oi.Step, name: :merge_media
+
+  manifest(
+    inputs: [:pic_map, :svg_map, :pdf_map],
+    outputs: [media_map: :map]
+  )
+
+  routine [pic_map, svg_map, pdf_map], _opts do
+    [pic_map, svg_map, pdf_map]
+    |> Enum.reduce(%{}, fn map, acc -> Map.merge(acc, map) end)
+    |> then(&ok(&1))
   end
 end

@@ -1,6 +1,11 @@
 defmodule Greenhouse.Pipeline.MediaExportStep do
-  use Orchid.Step
+  use Oi.Step, name: :media_export
   alias Greenhouse.Asset.Media
+
+  manifest(
+    inputs: [:media_map],
+    outputs: [media_export_status: :any]
+  )
 
   @options_schema [
     output_dir: [
@@ -10,13 +15,13 @@ defmodule Greenhouse.Pipeline.MediaExportStep do
     ]
   ]
 
-  def run(%Orchid.Param{payload: media_map}, step_options) do
-    opts =
-      step_options
-      |> Orchid.Steps.Helpers.drop_orchid_native()
+  routine media_map, opts do
+    validated =
+      opts
+      |> Keyword.drop([:__orchid_workflow_ctx__, :__reporter_ctx__])
       |> NimbleOptions.validate!(@options_schema)
 
-    output_dir = opts[:output_dir]
+    output_dir = validated[:output_dir]
 
     media_map
     |> Map.values()
@@ -25,6 +30,6 @@ defmodule Greenhouse.Pipeline.MediaExportStep do
     end)
     |> Enum.to_list()
 
-    {:ok, Orchid.Param.new(:media_export_status, :any, :ok)}
+    ok(:ok)
   end
 end

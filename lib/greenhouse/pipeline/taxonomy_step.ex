@@ -1,18 +1,21 @@
 defmodule Greenhouse.Pipeline.TaxonomyStep do
-  use Orchid.Step
+  use Oi.Step, name: :taxonomy
   import Greenhouse.Taxonomy.Builder
-  import Orchid.ParamFactory
 
-  def run(%Orchid.Param{payload: posts_map}, _step_options) do
-    tags_posts_mapper = posts_map_into_tags(posts_map)
-    series_posts_mapper = posts_map_into_series(posts_map)
-    categories_posts_mapper = posts_map_into_categories(posts_map)
+  manifest(
+    inputs: [:posts_map],
+    outputs: [
+      tags_posts_mapper: :index_posts_mapper,
+      series_posts_mapper: :index_posts_mapper,
+      categories_posts_mapper: :index_posts_mapper
+    ]
+  )
 
-    {:ok,
-     [
-       to_param(tags_posts_mapper, :index_posts_mapper),
-       to_param(series_posts_mapper, :index_posts_mapper),
-       to_param(categories_posts_mapper, :index_posts_mapper)
-     ]}
+  routine posts_map, _opts do
+    tags = posts_map_into_tags(posts_map)
+    series = posts_map_into_series(posts_map)
+    categories = posts_map_into_categories(posts_map)
+
+    ok({tags, series, categories})
   end
 end

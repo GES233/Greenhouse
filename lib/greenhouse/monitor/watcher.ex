@@ -1,6 +1,6 @@
 defmodule Greenhouse.Monitor.Watcher do
   @moduledoc """
-  Watches source directories for file changes, triggers full Orchid rebuild,
+  Watches source directories for file changes, triggers full Oi rebuild,
   then broadcasts reload via Broadcaster.
   """
   use GenServer
@@ -17,8 +17,8 @@ defmodule Greenhouse.Monitor.Watcher do
   @impl true
   def init(opts) do
     source_root = Keyword.fetch!(opts, :source_root)
-    recipe = Keyword.fetch!(opts, :recipe)
-    params = Keyword.fetch!(opts, :params)
+    compiled = Keyword.fetch!(opts, :compiled)
+    inputs = Keyword.fetch!(opts, :inputs)
 
     # Watch _posts, img, pdf, src, _bibs
     dirs = Enum.filter(
@@ -32,8 +32,8 @@ defmodule Greenhouse.Monitor.Watcher do
     Logger.info("Watcher started, monitoring: #{inspect(dirs)}")
 
     {:ok, %{
-      recipe: recipe,
-      params: params,
+      compiled: compiled,
+      inputs: inputs,
       watcher: watcher_pid,
       timer_ref: nil
     }}
@@ -55,7 +55,7 @@ defmodule Greenhouse.Monitor.Watcher do
   def handle_info(:rebuild, state) do
     IO.puts("\n[Watcher] Change detected, rebuilding...")
 
-    case Orchid.run(state.recipe, state.params) do
+    case Oi.execute(state.compiled, inputs: state.inputs) do
       {:ok, _result} ->
         IO.puts("[Watcher] Rebuild complete.")
         Broadcaster.broadcast({:reload, %{timestamp: DateTime.utc_now() |> DateTime.to_iso8601()}})

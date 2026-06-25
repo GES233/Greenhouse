@@ -1,15 +1,16 @@
 defmodule Greenhouse.Steps.MarkdownToHTML do
+  use Oi.Step, name: :markdown_to_html
   require Logger
-  use Orchid.Step
 
-  def run([posts_map_or_pages_map, bib_entry], _step_options) do
-    bib_entry_path = Orchid.Param.get_payload(bib_entry)
+  manifest(
+    inputs: [:content_map, :bib_entry],
+    outputs: [with_doc_struct: :map]
+  )
 
-    posts_map_or_pages_map
-    |> Orchid.Param.get_payload()
+  routine [content_map, bib_entry_path], _opts do
+    content_map
     |> Task.async_stream(
       fn {_id, p} -> convert_to_markdown(p, bib_entry_path) end,
-      # TODO: Add option
       max_concurrency: System.schedulers_online(),
       timeout: :infinity
     )
@@ -20,10 +21,11 @@ defmodule Greenhouse.Steps.MarkdownToHTML do
       end
     end)
     |> case do
-      [_ | _] = posts_map_or_pages_list ->
-        Enum.map(posts_map_or_pages_list, fn p -> {p.id, p} end)
+      [_ | _] = list ->
+        list
+        |> Enum.map(fn p -> {p.id, p} end)
         |> Enum.into(%{})
-        |> then(&{:ok, Orchid.Param.new(:with_doc_struct, :map, &1)})
+        |> then(&ok(&1))
 
       err ->
         err

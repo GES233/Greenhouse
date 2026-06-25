@@ -214,25 +214,30 @@ defmodule Greenhouse.Theme.MobileFriendly do
 
     """
     #{theme_toggle_button()}
-    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10">
-      <div class="navbar bg-base-100 shadow-sm px-4 sm:px-6 lg:px-8">
+    <header class="bg-base-100/80 backdrop-blur-sm sticky top-0 z-10 border-b border-base-200">
+      <div class="navbar max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-12 sm:min-h-16">
         <div class="flex-1">
-          <a  href="/" class="btn btn-ghost text-xl"><kbd>GES233</kbd>'s Blog</a>
+          <a href="/" class="btn btn-ghost text-xl px-2"><kbd class="font-mono">GES233</kbd>'s Blog</a>
         </div>
-        <ul class="menu menu-horizontal px-1">
-        <li>
-          <details>
-            <summary>欢迎</summary>
-            <ul class="bg-base-100 rounded-t-none p-2">
-              <li><a href="/about">关于</a></li>
-              <li><a href="/friends">友链</a></li>
-              <li></li>
-            </ul>
-          </details>
-        </li>
-      </ul>
+        <div class="flex-none hidden sm:block">
+          <ul class="menu menu-horizontal px-1">
+            <li><a href="/about" class="font-medium">关于</a></li>
+            <li><a href="/friends" class="font-medium">友链</a></li>
+          </ul>
+        </div>
+        <div class="flex-none sm:hidden dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a href="/about">关于</a></li>
+            <li><a href="/friends">友链</a></li>
+            <li></li>
+          </ul>
+        </div>
       </div>
     </header>
+
     <div class="min-h-screen">
       <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <article class="bg-base-100 rounded-xl shadow-sm p-6 sm:p-8 md:p-12">

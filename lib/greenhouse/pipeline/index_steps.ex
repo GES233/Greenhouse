@@ -1,5 +1,10 @@
 defmodule Greenhouse.Pipeline.IndexSteps do
-  use Orchid.Step
+  use Oi.Step, name: :index
+
+  manifest(
+    inputs: [:posts_map, :tags_map, :series_map, :cat_map],
+    outputs: [index_status: :any]
+  )
 
   @options_schema [
     theme: [
@@ -24,21 +29,19 @@ defmodule Greenhouse.Pipeline.IndexSteps do
     ]
   ]
 
-  def run([posts_map_param, tags_map, series_map, cat_map], step_options) do
-    opts =
-      step_options
-      |> Orchid.Steps.Helpers.drop_orchid_native()
+  routine [posts_dict, tags_posts_mapper, series_posts_mapper, categories_posts_mapper], opts do
+    validated =
+      opts
+      |> Keyword.drop([:__orchid_workflow_ctx__, :__reporter_ctx__])
       |> NimbleOptions.validate!(@options_schema)
 
-    theme_module = opts[:theme]
-    global_assigns = opts[:site_config]
-    output_dir = opts[:output_dir]
+    theme_module = validated[:theme]
+    global_assigns = validated[:site_config]
+    output_dir = validated[:output_dir]
 
-    posts_dict = Orchid.Param.get_payload(posts_map_param)
     posts = posts_dict |> Map.values() |> Enum.sort_by(& &1.created_at, {:desc, NaiveDateTime})
 
-    # 1. Render Index (with pagination)
-    pages = paginate(posts, opts[:page_size])
+    pages = paginate(posts, validated[:page_size])
     total_pages = length(pages)
 
     pages
@@ -63,39 +66,11 @@ defmodule Greenhouse.Pipeline.IndexSteps do
       File.write!(path, html)
     end)
 
-    # 2. Render Taxonomies (tags, categories, series)
-    tags_posts_mapper = Orchid.Param.get_payload(tags_map)
-    series_posts_mapper = Orchid.Param.get_payload(series_map)
-    categories_posts_mapper = Orchid.Param.get_payload(cat_map)
+    render_taxonomy_map(tags_posts_mapper, :tags, theme_module, global_assigns, output_dir, posts_dict)
+    render_taxonomy_map(categories_posts_mapper, :categories, theme_module, global_assigns, output_dir, posts_dict)
+    render_taxonomy_map(series_posts_mapper, :series, theme_module, global_assigns, output_dir, posts_dict)
 
-    render_taxonomy_map(
-      tags_posts_mapper,
-      :tags,
-      theme_module,
-      global_assigns,
-      output_dir,
-      posts_dict
-    )
-
-    render_taxonomy_map(
-      categories_posts_mapper,
-      :categories,
-      theme_module,
-      global_assigns,
-      output_dir,
-      posts_dict
-    )
-
-    render_taxonomy_map(
-      series_posts_mapper,
-      :series,
-      theme_module,
-      global_assigns,
-      output_dir,
-      posts_dict
-    )
-
-    {:ok, Orchid.Param.new(:index_status, :any, :ok)}
+    ok(:ok)
   end
 
   defp paginate(posts, page_size) do
@@ -148,7 +123,7 @@ defmodule Greenhouse.Pipeline.IndexSteps do
          %Greenhouse.Taxonomy.CategoryItem{name: name, child: children, posts: posts},
          current_path
        ) do
-    new_path = if name == "未归类" and current_path == [], do: [], else: current_path ++ [name]
+    new_path = if name == "\u672a\u5f52\u7c7b" and current_path == [], do: [], else: current_path ++ [name]
 
     current_node_items =
       if new_path != [] and posts != [] do

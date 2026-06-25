@@ -1,5 +1,10 @@
 defmodule Greenhouse.Pipeline.AssetSteps do
-  use Orchid.Step
+  use Oi.Step, name: :assets
+
+  manifest(
+    inputs: [:post_ids],
+    outputs: [asset_status: :any]
+  )
 
   @options_schema [
     source_dir: [
@@ -14,18 +19,17 @@ defmodule Greenhouse.Pipeline.AssetSteps do
     ]
   ]
 
-  def run(_param, step_options) do
-    opts =
-      step_options
-      |> Orchid.Steps.Helpers.drop_orchid_native()
+  routine _post_ids, opts do
+    validated =
+      opts
+      |> Keyword.drop([:__orchid_workflow_ctx__, :__reporter_ctx__])
       |> NimbleOptions.validate!(@options_schema)
 
-    source = opts[:source_dir]
-    output = opts[:output_dir]
+    source = validated[:source_dir]
+    output = validated[:output_dir]
 
     File.mkdir_p!(Path.dirname(output))
 
-    # Run the tailwind command
     {_output, 0} =
       System.cmd("mix", ["tailwind", "default", "--input=#{source}", "--output=#{output}"],
         env: [{"MIX_ENV", "dev"}]
@@ -33,11 +37,10 @@ defmodule Greenhouse.Pipeline.AssetSteps do
 
     copy_static_assets()
 
-    {:ok, Orchid.Param.new(:status, :any, :ok)}
+    ok(:ok)
   end
 
   defp copy_static_assets do
-    # Copy root-level static files from source
     for file <- ["favicon.ico", "robots.txt"] do
       source = Path.join("source", file)
       target = Path.join("exports", file)
