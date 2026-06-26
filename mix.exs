@@ -26,7 +26,7 @@ defmodule Greenhouse.MixProject do
       # Orchestration
       {:orchid, "~> 0.6"},
       {:orchid_symbiont, "~> 0.2"},
-      {:oi, "~> 0.2", runtime: true},
+      {:oi, "~> 0.5", runtime: true},
       {:nimble_options, "~> 1.1"},
 
       # Meta parse

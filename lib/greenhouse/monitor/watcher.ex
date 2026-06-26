@@ -18,7 +18,7 @@ defmodule Greenhouse.Monitor.Watcher do
   def init(opts) do
     source_root = Keyword.fetch!(opts, :source_root)
     compiled = Keyword.fetch!(opts, :compiled)
-    inputs = Keyword.fetch!(opts, :inputs)
+    data = Keyword.fetch!(opts, :data)
 
     # Watch _posts, img, pdf, src, _bibs
     dirs = Enum.filter(
@@ -33,7 +33,7 @@ defmodule Greenhouse.Monitor.Watcher do
 
     {:ok, %{
       compiled: compiled,
-      inputs: inputs,
+      data: data,
       watcher: watcher_pid,
       timer_ref: nil
     }}
@@ -55,7 +55,7 @@ defmodule Greenhouse.Monitor.Watcher do
   def handle_info(:rebuild, state) do
     IO.puts("\n[Watcher] Change detected, rebuilding...")
 
-    case Oi.execute(state.compiled, inputs: state.inputs) do
+    case Oi.execute(state.compiled, data: state.data) do
       {:ok, _result} ->
         IO.puts("[Watcher] Rebuild complete.")
         Broadcaster.broadcast({:reload, %{timestamp: DateTime.utc_now() |> DateTime.to_iso8601()}})

@@ -17,14 +17,14 @@ bib_entry = Path.join(source_root, "_bibs")
 
 server_port = 4000
 
-inputs = %{
-  "load_posts|posts_path" => posts_path,
-  "load_pages|page_root_path" => page_root_path,
-  "load_images|pic_path" => pic_path,
-  "load_pdfs|pdf_path" => pdf_path,
-  "load_dots|dot_path" => dot_path,
-  "markdown_posts|bib_entry" => bib_entry,
-  "markdown_pages|bib_entry" => bib_entry
+data = %{
+  load_posts: %{posts_path: posts_path},
+  load_pages: %{page_root_path: page_root_path},
+  load_images: %{pic_path: pic_path},
+  load_pdfs: %{pdf_path: pdf_path},
+  load_dots: %{dot_path: dot_path},
+  markdown_posts: %{bib_entry: bib_entry},
+  markdown_pages: %{bib_entry: bib_entry}
 }
 
 graph = Greenhouse.Pipeline.Graph.build()
@@ -34,7 +34,7 @@ IO.puts("Performing initial build...")
 
 {:ok, compiled} = Oi.compile(graph)
 
-case Oi.execute(compiled, inputs: inputs) do
+case Oi.execute(compiled, data: data) do
   {:ok, _} -> IO.puts("Initial build complete.")
   {:error, err} ->
     IO.puts("Initial build failed: #{inspect(err)}")
@@ -44,7 +44,7 @@ end
 # ---- Start Services ----
 children = [
   Greenhouse.Monitor.Broadcaster,
-  {Greenhouse.Monitor.Watcher, [source_root: source_root, compiled: compiled, inputs: inputs]},
+  {Greenhouse.Monitor.Watcher, [source_root: source_root, compiled: compiled, data: data]},
   {Plug.Cowboy, scheme: :http, plug: Greenhouse.Monitor.DevServer, options: [port: server_port]}
 ]
 
