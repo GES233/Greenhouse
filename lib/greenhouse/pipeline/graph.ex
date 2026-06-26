@@ -32,8 +32,27 @@ defmodule Greenhouse.Pipeline.Graph do
     }
   end
 
+  @step_modules [
+    LoadPosts,
+    LoadPages,
+    LoadImages,
+    LoadPdfs,
+    LoadDots,
+    MergeMedia,
+    ReplaceLink,
+    MarkdownToHTML,
+    TaxonomyStep,
+    LayoutSteps,
+    MediaExportStep,
+    IndexSteps,
+    AssetSteps,
+    DeployStep
+  ]
+
   @spec build() :: Oi.Topology.Graph.t()
   def build do
+    _ = Enum.each(@step_modules, &Code.ensure_loaded!/1)
+
     new_flowchart()
     |> add_step(LoadPosts)
     |> add_step(LoadPages)
