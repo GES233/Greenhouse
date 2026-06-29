@@ -23,7 +23,15 @@ data = %{
 graph = Greenhouse.Pipeline.Graph.build()
 {:ok, compiled} = Oi.compile(graph)
 
-_res = Oi.execute(compiled, data: data) |> case do
-  {:ok, res} -> res
-  {:error, err} -> err
-end
+{orchid_opts, report} = Greenhouse.Pipeline.Telemetry.setup()
+
+_res =
+  case Oi.execute(compiled, Keyword.merge(orchid_opts, [data: data])) do
+    {:ok, res} ->
+      report.()
+      res
+
+    {:error, err} ->
+      report.()
+      err
+  end

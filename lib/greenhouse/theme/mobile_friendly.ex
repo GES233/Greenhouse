@@ -238,7 +238,7 @@ defmodule Greenhouse.Theme.MobileFriendly do
       </div>
     </header>
 
-    <div class="min-h-screen">
+    <div class="bg-base-200 min-h-screen pb-16">
       <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <article class="bg-base-100 rounded-xl shadow-sm p-6 sm:p-8 md:p-12">
           <header class="mb-8 md:mb-12 border-b border-base-300 pb-6 md:pb-8">

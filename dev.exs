@@ -34,9 +34,15 @@ IO.puts("Performing initial build...")
 
 {:ok, compiled} = Oi.compile(graph)
 
-case Oi.execute(compiled, data: data) do
-  {:ok, _} -> IO.puts("Initial build complete.")
+{orchid_opts, report} = Greenhouse.Pipeline.Telemetry.setup()
+
+case Oi.execute(compiled, Keyword.merge(orchid_opts, [data: data])) do
+  {:ok, _} ->
+    report.()
+    IO.puts("Initial build complete.")
+
   {:error, err} ->
+    report.()
     IO.puts("Initial build failed: #{inspect(err)}")
     System.halt(1)
 end

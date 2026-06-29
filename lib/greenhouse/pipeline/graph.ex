@@ -19,6 +19,32 @@ defmodule Greenhouse.Pipeline.Graph do
   @doc """
   External input nodes and their ports expected by `Oi.execute/2`'s `:data` option.
   """
+
+  @step_modules [
+    Greenhouse.Pipeline.ContentSteps.LoadPosts,
+    Greenhouse.Pipeline.ContentSteps.LoadPages,
+    Greenhouse.Pipeline.ContentSteps.ReplaceLink,
+    Greenhouse.Media.LoadImages,
+    Greenhouse.Media.LoadPdfs,
+    Greenhouse.Media.LoadDots,
+    Greenhouse.Media.MergeMedia,
+    Greenhouse.Steps.MarkdownToHTML,
+    Greenhouse.Pipeline.TaxonomyStep,
+    Greenhouse.Pipeline.LayoutSteps,
+    Greenhouse.Pipeline.MediaExportStep,
+    Greenhouse.Pipeline.IndexSteps,
+    Greenhouse.Pipeline.AssetSteps,
+    Greenhouse.Pipeline.DeployStep
+  ]
+
+
+  # Compile-time dependency: ensure step modules are compiled before
+  # this module's macros (step/many_step) expand and call function_exported?.
+  # Compile-time dependency: force dependency modules to compile first.
+  # Without this, function_exported? fails in the step/many_step macros
+  # because the modules haven't been compiled yet.
+  for mod <- @step_modules, do: Code.ensure_compiled!(mod)
+
   @spec external_inputs() :: %{atom() => [atom()]}
   def external_inputs do
     %{
@@ -32,62 +58,55 @@ defmodule Greenhouse.Pipeline.Graph do
     }
   end
 
-  @step_modules [
-    LoadPosts,
-    LoadPages,
-    LoadImages,
-    LoadPdfs,
-    LoadDots,
-    MergeMedia,
-    ReplaceLink,
-    MarkdownToHTML,
-    TaxonomyStep,
-    LayoutSteps,
-    MediaExportStep,
-    IndexSteps,
-    AssetSteps,
-    DeployStep
-  ]
-
   @spec build() :: Oi.Topology.Graph.t()
   def build do
-    _ = Enum.each(@step_modules, &Code.ensure_loaded!/1)
+    graph do
+      many_step [LoadPosts, LoadPages, LoadImages, LoadPdfs, LoadDots,
+                 MergeMedia, ReplaceLink]
+      step MarkdownToHTML, as: :markdown_posts
+      step MarkdownToHTML, as: :markdown_pages
+      step TaxonomyStep
+      step LayoutSteps, as: :layout_posts, opts: [theme: Greenhouse.Theme.MobileFriendly]
+      step LayoutSteps, as: :layout_pages, opts: [theme: Greenhouse.Theme.MobileFriendly]
+      step MediaExportStep
+      step IndexSteps, opts: [theme: Greenhouse.Theme.MobileFriendly]
+      step AssetSteps
+      step DeployStep, opts: deploy_opts()
 
-    new_flowchart()
-    |> add_step(LoadPosts)
-    |> add_step(LoadPages)
-    |> add_step(LoadImages)
-    |> add_step(LoadPdfs)
-    |> add_step(LoadDots)
-    |> add_step(MergeMedia)
-    |> add_step(ReplaceLink)
-    |> add_step(MarkdownToHTML, as: :markdown_posts)
-    |> add_step(MarkdownToHTML, as: :markdown_pages)
-    |> add_step(TaxonomyStep)
-    |> add_step(LayoutSteps, as: :layout_posts, opts: [theme: Greenhouse.Theme.MobileFriendly])
-    |> add_step(LayoutSteps, as: :layout_pages, opts: [theme: Greenhouse.Theme.MobileFriendly])
-    |> add_step(MediaExportStep)
-    |> add_step(IndexSteps, opts: [theme: Greenhouse.Theme.MobileFriendly])
-    |> add_step(AssetSteps)
-    |> add_step(DeployStep, opts: deploy_opts())
-    |> connect({:load_images, :pic_map}, {:merge_media, :pic_map})
-    |> connect({:load_dots, :svg_map}, {:merge_media, :svg_map})
-    |> connect({:load_pdfs, :pdf_map}, {:merge_media, :pdf_map})
-    |> connect({:load_posts, :posts_map}, {:replace_link, :posts_map})
-    |> connect({:load_pages, :pages_map}, {:replace_link, :pages_map})
-    |> connect({:merge_media, :media_map}, {:replace_link, :media_map})
-    |> connect({:replace_link, :replaced_posts_map}, {:markdown_posts, :replaced_posts_map})
-    |> connect({:replace_link, :replaced_pages_map}, {:markdown_pages, :replaced_pages_map})
-    |> connect({:load_posts, :posts_map}, {:taxonomy, :posts_map})
-    |> connect({:markdown_posts, :posts_map_with_doc_struct}, {:layout_posts, :posts_map_with_doc_struct})
-    |> connect({:markdown_pages, :pages_map_with_doc_struct}, {:layout_pages, :pages_map_with_doc_struct})
-    |> connect({:merge_media, :media_map}, {:media_export, :media_map})
-    |> connect({:markdown_posts, :posts_map_with_doc_struct}, {:index, :posts_map_with_doc_struct})
-    |> connect({:taxonomy, :tags_posts_mapper}, {:index, :tags_posts_mapper})
-    |> connect({:taxonomy, :series_posts_mapper}, {:index, :series_posts_mapper})
-    |> connect({:taxonomy, :categories_posts_mapper}, {:index, :categories_posts_mapper})
-    |> connect({:layout_posts, :post_ids}, {:assets, :post_ids})
-    |> connect({:assets, :asset_status}, {:deploy, :asset_status})
+      # Media -> Merge
+      load_images.pic_map ~> merge_media.pic_map
+      load_dots.svg_map ~> merge_media.svg_map
+      load_pdfs.pdf_map ~> merge_media.pdf_map
+
+      # Content -> ReplaceLink
+      load_posts.posts_map ~> replace_link.posts_map
+      load_pages.pages_map ~> replace_link.pages_map
+      merge_media.media_map ~> replace_link.media_map
+
+      # ReplaceLink -> Markdown (content_map = step input port)
+      replace_link.replaced_posts_map ~> markdown_posts.content_map
+      replace_link.replaced_pages_map ~> markdown_pages.content_map
+
+      # Posts -> Taxonomy (raw, pre-markdown)
+      load_posts.posts_map ~> taxonomy.posts_map
+
+      # Markdown -> Layout (with_doc_struct = step output, map_with_doc_struct = layout input)
+      markdown_posts.with_doc_struct ~> layout_posts.map_with_doc_struct
+      markdown_pages.with_doc_struct ~> layout_pages.map_with_doc_struct
+
+      # Media -> MediaExport
+      merge_media.media_map ~> media_export.media_map
+
+      # Markdown + Taxonomy -> Index
+      markdown_posts.with_doc_struct ~> index.posts_map
+      taxonomy.tags_posts_mapper ~> index.tags_map
+      taxonomy.series_posts_mapper ~> index.series_map
+      taxonomy.categories_posts_mapper ~> index.cat_map
+
+      # Layout -> Assets -> Deploy
+      layout_posts.ids ~> assets.post_ids
+      assets.asset_status ~> deploy.asset_status
+    end
   end
 
   defp deploy_opts do
@@ -100,3 +119,5 @@ defmodule Greenhouse.Pipeline.Graph do
     ]
   end
 end
+
+
