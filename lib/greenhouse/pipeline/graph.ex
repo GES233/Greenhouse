@@ -4,6 +4,7 @@ defmodule Greenhouse.Pipeline.Graph do
   """
 
   import Oi.Flowgraph
+
   alias Greenhouse.Pipeline.{
     TaxonomyStep,
     LayoutSteps,
@@ -12,66 +13,25 @@ defmodule Greenhouse.Pipeline.Graph do
     AssetSteps,
     DeployStep
   }
+
   alias Greenhouse.Pipeline.ContentSteps.{LoadPosts, LoadPages, ReplaceLink}
   alias Greenhouse.Media.{LoadImages, LoadPdfs, LoadDots, MergeMedia}
   alias Greenhouse.Steps.MarkdownToHTML
-
-  @doc """
-  External input nodes and their ports expected by `Oi.execute/2`'s `:data` option.
-  """
-
-  @step_modules [
-    Greenhouse.Pipeline.ContentSteps.LoadPosts,
-    Greenhouse.Pipeline.ContentSteps.LoadPages,
-    Greenhouse.Pipeline.ContentSteps.ReplaceLink,
-    Greenhouse.Media.LoadImages,
-    Greenhouse.Media.LoadPdfs,
-    Greenhouse.Media.LoadDots,
-    Greenhouse.Media.MergeMedia,
-    Greenhouse.Steps.MarkdownToHTML,
-    Greenhouse.Pipeline.TaxonomyStep,
-    Greenhouse.Pipeline.LayoutSteps,
-    Greenhouse.Pipeline.MediaExportStep,
-    Greenhouse.Pipeline.IndexSteps,
-    Greenhouse.Pipeline.AssetSteps,
-    Greenhouse.Pipeline.DeployStep
-  ]
-
-
-  # Compile-time dependency: ensure step modules are compiled before
-  # this module's macros (step/many_step) expand and call function_exported?.
-  # Compile-time dependency: force dependency modules to compile first.
-  # Without this, function_exported? fails in the step/many_step macros
-  # because the modules haven't been compiled yet.
-  for mod <- @step_modules, do: Code.ensure_compiled!(mod)
-
-  @spec external_inputs() :: %{atom() => [atom()]}
-  def external_inputs do
-    %{
-      load_posts: [:posts_path],
-      load_pages: [:page_root_path],
-      load_images: [:pic_path],
-      load_pdfs: [:pdf_path],
-      load_dots: [:dot_path],
-      markdown_posts: [:bib_entry],
-      markdown_pages: [:bib_entry]
-    }
-  end
+  # External input nodes and their ports expected by `Oi.execute/2`'s `:data` option.
 
   @spec build() :: Oi.Topology.Graph.t()
   def build do
     graph do
-      many_step [LoadPosts, LoadPages, LoadImages, LoadPdfs, LoadDots,
-                 MergeMedia, ReplaceLink]
-      step MarkdownToHTML, as: :markdown_posts
-      step MarkdownToHTML, as: :markdown_pages
-      step TaxonomyStep
-      step LayoutSteps, as: :layout_posts, opts: [theme: Greenhouse.Theme.MobileFriendly]
-      step LayoutSteps, as: :layout_pages, opts: [theme: Greenhouse.Theme.MobileFriendly]
-      step MediaExportStep
-      step IndexSteps, opts: [theme: Greenhouse.Theme.MobileFriendly]
-      step AssetSteps
-      step DeployStep, opts: deploy_opts()
+      many_step([LoadPosts, LoadPages, LoadImages, LoadPdfs, LoadDots, MergeMedia, ReplaceLink])
+      step(MarkdownToHTML, as: :markdown_posts)
+      step(MarkdownToHTML, as: :markdown_pages)
+      step(TaxonomyStep)
+      step(LayoutSteps, as: :layout_posts, opts: [theme: Greenhouse.Theme.MobileFriendly])
+      step(LayoutSteps, as: :layout_pages, opts: [theme: Greenhouse.Theme.MobileFriendly])
+      step(MediaExportStep)
+      step(IndexSteps, opts: [theme: Greenhouse.Theme.MobileFriendly])
+      step(AssetSteps)
+      step(DeployStep, opts: deploy_opts())
 
       # Media -> Merge
       load_images.pic_map ~> merge_media.pic_map
@@ -119,5 +79,3 @@ defmodule Greenhouse.Pipeline.Graph do
     ]
   end
 end
-
-
