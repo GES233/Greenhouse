@@ -8,6 +8,24 @@
   <% end %>
   <%= if Map.get(@options, "music") do %>
     <script src="/assets/abcjs-plugin-min.js" type="text/javascript"></script>
+    <script src="/assets/abcjs/abcjs-basic-min.js"></script>
+    <script>
+      // Render ABC notation code blocks to sheet music
+      document.addEventListener("DOMContentLoaded", function() {
+        var abcBlocks = document.querySelectorAll("pre.abc code");
+        abcBlocks.forEach(function(code) {
+          var pre = code.parentElement;
+          var abcText = code.textContent;
+          var paper = document.createElement("div");
+          paper.className = "abc-rendered";
+          pre.parentNode.replaceChild(paper, pre);
+          ABCJS.renderAbc(paper, abcText, {
+            responsive: "resize",
+            staffwidth: 720
+          });
+        });
+      });
+    </script>
   <% end %>
   <%= if Map.get(@options, "calendar") do %>
     <!-- https://fullcalendar.io/docs/initialize-browser-esm -->
