@@ -7,7 +7,7 @@
   <%= if Map.get(@options, "pdf") do %>
   <% end %>
   <%= if Map.get(@options, "music") do %>
-    <script src="/assets/abcjs-plugin-min.js" type="text/javascript"></script>
+    <script src="/assets/abcjs/abcjs-plugin-min.js" type="text/javascript"></script>
     <script src="/assets/abcjs/abcjs-basic-min.js"></script>
     <script>
       // Render ABC notation code blocks to sheet music
