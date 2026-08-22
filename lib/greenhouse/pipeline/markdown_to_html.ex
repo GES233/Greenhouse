@@ -1,6 +1,5 @@
 defmodule Greenhouse.Steps.MarkdownToHTML do
   use Oi.Step, name: :markdown_to_html
-  require Logger
 
   manifest(
     inputs: [:content_map, :bib_entry],
