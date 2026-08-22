@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Greenhouse.NewPost do
   use Mix.Task
 
   @shortdoc "Creates a new blog post"
-  @default_path "D:/Blog/source/_posts"
+  @default_path "source/_posts"
 
   def run(args) do
     {opts, positional, _} =
