@@ -17,6 +17,9 @@ defmodule Pandox do
 
   def do_extract_args(meta), do: meta
 
+  # 高版本(pandoc 3.11)改用 --math-method=mathjax
+  # Or raise [WARNING] Deprecated: --mathjax. Use --math-method=mathjax[:URL] instead.
+  # 目前这个还有用，所以先不动，等到所有设备环境都更新上再换
   @pandoc_flags ~w(
     --mathjax
     -f markdown+smart+emoji
